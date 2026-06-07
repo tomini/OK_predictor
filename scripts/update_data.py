@@ -116,6 +116,10 @@ def fetch_current_code():
         full = re.sub(r"Zadejte kód:\s*\S+", "", full, flags=re.IGNORECASE).strip()
         discount = normalize(full)
 
+    # Strip endpoint-specific prefix not present in historical FB data
+    if discount:
+        discount = re.sub(r'^TAJNÝ KÓD JEN PRO VÁS\.?\s*', '', discount).strip()
+
     return discount, code
 
 
