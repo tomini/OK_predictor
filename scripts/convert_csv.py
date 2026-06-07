@@ -192,20 +192,23 @@ def main():
             "source":   "csv_import",
         })
 
-    # Sort newest first for UI
-    history.sort(key=lambda x: x["date"], reverse=True)
-
-    # Predictions use only DATE_FROM+ data
-    predictions = compute_predictions(history)
-
-    # Preserve existing accuracy log if history.json already exists
+    # Merge endpoint/manual entries from existing history.json (not in CSV)
     existing_accuracy = {"total": 0, "correct": 0, "log": []}
     if DATA_FILE.exists():
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as f:
-                existing_accuracy = json.load(f).get("accuracy", existing_accuracy)
+                existing = json.load(f)
+            existing_accuracy = existing.get("accuracy", existing_accuracy)
+            csv_dates = {e["date"] for e in history}
+            for entry in existing.get("history", []):
+                if entry.get("source") in ("endpoint", "manual") and entry["date"] not in csv_dates:
+                    history.append(entry)
+                    print(f"Preserved {entry['source']} entry: {entry['date']}")
         except Exception:
             pass
+
+    # Sort newest first for UI
+    history.sort(key=lambda x: x["date"], reverse=True)
 
     data = {
         "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
