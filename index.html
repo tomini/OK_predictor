@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdKarla – Prediktor slev</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e3e;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #e2e2f0;
+      --muted: #7070a0;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent2); }
+    #last-updated { font-size: 0.75rem; color: var(--muted); }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    nav button.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+    nav button:hover { color: var(--text); }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    section { display: none; }
+    section.active { display: block; }
+
+    h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase;
+         letter-spacing: 0.08em; margin-bottom: 16px; }
+
+    /* ── Today hero ── */
+    #today-card {
+      background: linear-gradient(135deg, #1a1a35, #1e1030);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    #today-card .label { font-size: 0.75rem; color: var(--accent2); text-transform: uppercase;
+                          letter-spacing: 0.1em; margin-bottom: 8px; }
+    #today-card .discount { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    #today-card .code-wrap { display: inline-flex; align-items: center; gap: 10px;
+                              background: var(--surface2); border: 1px solid var(--border);
+                              border-radius: 8px; padding: 10px 18px; }
+    #today-card .code { font-family: monospace; font-size: 1.6rem; font-weight: 700;
+                         letter-spacing: 0.15em; color: var(--yellow); }
+    #copy-btn {
+      background: var(--accent); border: none; color: #fff; border-radius: 6px;
+      padding: 6px 12px; cursor: pointer; font-size: 0.8rem; transition: opacity 0.15s;
+    }
+    #copy-btn:hover { opacity: 0.85; }
+    #today-card .no-code { color: var(--muted); font-size: 0.9rem; font-style: italic; }
+
+    /* ── Prediction cards ── */
+    .pred-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .pred-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .pred-card .date-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
+                              letter-spacing: 0.06em; }
+    .pred-card .dow { font-size: 0.85rem; font-weight: 600; color: var(--accent2); margin-bottom: 10px; }
+    .pred-card .candidate { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .pred-card .prob-bar-wrap { flex: 1; }
+    .pred-card .candidate-name { font-size: 0.78rem; line-height: 1.3; margin-bottom: 3px; }
+    .pred-card .prob-bar { height: 4px; background: var(--border); border-radius: 2px; }
+    .pred-card .prob-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+    .pred-card .prob-pct { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .pred-card.top-pred { border-color: var(--accent); }
+
+    /* ── Extended forecast ── */
+    .forecast-controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .forecast-controls button {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem;
+      transition: background 0.15s;
+    }
+    .forecast-controls button.active { background: var(--accent); border-color: var(--accent); }
+    .forecast-controls button:hover:not(.active) { background: var(--surface); }
+
+    .forecast-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .forecast-table th {
+      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
+      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
+    }
+    .forecast-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .forecast-table tr:hover td { background: var(--surface2); }
+    .forecast-table .prob-chip {
+      display: inline-block; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 7px; font-size: 0.72rem; color: var(--accent2);
+      margin-right: 4px; margin-bottom: 2px;
+    }
+    .forecast-table .prob-chip.top { background: #1e1035; border-color: var(--accent); color: var(--accent2); }
+
+    /* ── History ── */
+    .history-controls {
+      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+    }
+    #search-input {
+      flex: 1; min-width: 200px; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;
+    }
+    #search-input::placeholder { color: var(--muted); }
+    #search-input:focus { outline: none; border-color: var(--accent); }
+
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .history-table th {
+      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
+      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
+      position: sticky; top: 0; background: var(--bg);
+    }
+    .history-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .history-table tr:hover td { background: var(--surface2); }
+    .code-chip {
+      font-family: monospace; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 6px; font-size: 0.8rem; color: var(--yellow);
+    }
+    .source-chip {
+      font-size: 0.7rem; border-radius: 4px; padding: 2px 6px;
+      background: var(--surface2); color: var(--muted);
+    }
+    .source-chip.endpoint { color: var(--green); }
+
+    #history-count { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+    .load-more {
+      display: block; margin: 16px auto 0; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text); padding: 8px 24px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    .load-more:hover { background: var(--surface); }
+
+    /* ── Accuracy ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 18px; text-align: center;
+    }
+    .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent2); }
+    .stat-card .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+    .accuracy-log { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .accuracy-log th {
+      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
+      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
+    }
+    .accuracy-log td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .accuracy-log tr:hover td { background: var(--surface2); }
+    .correct-yes { color: var(--green); font-weight: 600; }
+    .correct-no  { color: var(--red); }
+
+    /* ── Utilities ── */
+    .spinner {
+      display: inline-block; width: 20px; height: 20px;
+      border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg { color: var(--muted); font-size: 0.9rem; display: flex;
+                   align-items: center; gap: 10px; padding: 24px 0; }
+    .error-msg { color: var(--red); padding: 16px; background: #200; border-radius: 8px;
+                 border: 1px solid #400; font-size: 0.85rem; }
+
+    .badge-correct { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+                     background: var(--green); margin-right: 4px; }
+    .badge-wrong   { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+                     background: var(--red); margin-right: 4px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>OdKarla – Prediktor slev</h1>
+  <span id="last-updated">Načítám…</span>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('today')">Dnes</button>
+  <button onclick="showTab('forecast')">Výhled</button>
+  <button onclick="showTab('history')">Historie</button>
+  <button onclick="showTab('accuracy')">Přesnost</button>
+</nav>
+
+<main>
+
+  <!-- TODAY -->
+  <section id="tab-today" class="active">
+    <div id="today-card">
+      <div class="loading-msg"><span class="spinner"></span> Načítám dnešní kód…</div>
+    </div>
+    <h2>Predikce na příštích 7 dní</h2>
+    <div class="pred-grid" id="week-mini">
+      <div class="loading-msg"><span class="spinner"></span> Načítám predikce…</div>
+    </div>
+  </section>
+
+  <!-- FORECAST -->
+  <section id="tab-forecast">
+    <h2>Výhled</h2>
+    <div class="forecast-controls">
+      <button class="active" onclick="setForecastDays(14, this)">14 dní</button>
+      <button onclick="setForecastDays(30, this)">30 dní</button>
+      <button onclick="setForecastDays(90, this)">90 dní</button>
+    </div>
+    <div id="forecast-table-wrap">
+      <div class="loading-msg"><span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history">
+    <h2>Historie</h2>
+    <div class="history-controls">
+      <input id="search-input" type="search" placeholder="Hledat slevu…" oninput="filterHistory()">
+      <span id="history-count"></span>
+    </div>
+    <div id="history-table-wrap">
+      <div class="loading-msg"><span class="spinner"></span></div>
+    </div>
+  </section>
+
+  <!-- ACCURACY -->
+  <section id="tab-accuracy">
+    <h2>Přesnost predikcí</h2>
+    <div class="stats-grid" id="stats-grid">
+      <div class="loading-msg"><span class="spinner"></span></div>
+    </div>
+    <div id="accuracy-log-wrap"></div>
+  </section>
+
+</main>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const DAYS_CZ = ['Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota','Neděle'];
+const HISTORY_JSON = 'data/history.json';
+const ENDPOINT     = 'https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret';
+
+let appData = null;        // from history.json
+let liveCode = null;       // from live endpoint
+let historyPage = 50;      // rows shown
+let forecastDays = 14;
+let filteredHistory = [];
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  const [dataResult, liveResult] = await Promise.allSettled([
+    fetch(HISTORY_JSON + '?t=' + Date.now()).then(r => r.json()),
+    fetch(ENDPOINT).then(r => r.json())
+  ]);
+
+  if (dataResult.status === 'fulfilled') {
+    appData = dataResult.value;
+    const ts = appData.last_updated
+      ? new Date(appData.last_updated).toLocaleString('cs-CZ')
+      : '?';
+    document.getElementById('last-updated').textContent = 'Aktualizováno: ' + ts;
+  } else {
+    document.getElementById('last-updated').textContent = 'Chyba načítání dat';
+  }
+
+  if (liveResult.status === 'fulfilled') {
+    const ld = liveResult.value?.data;
+    if (ld?.isSecretCode) liveCode = ld;
+  }
+
+  renderToday();
+  renderWeekMini();
+  renderForecast();
+  renderHistory();
+  renderAccuracy();
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── Discount type key (mirrors Python discount_type_key) ────────────────────
+function discountTypeKey(s) {
+  s = s.toUpperCase();
+  let m = s.match(/SLEVA \d+\s*%.+ŠTÍTKEM (.+)/);
+  if (m) return 'SLEVA % | ' + m[1].trim();
+  if (/SLEVA \d+\s*% NA VŠE/.test(s)) return 'SLEVA % NA VŠE SKLADEM';
+  if (/SLEVA \d+ KČ/.test(s)) return 'SLEVA KČ';
+  return s;
+}
+
+// ─── Today ────────────────────────────────────────────────────────────────────
+function renderToday() {
+  const card = document.getElementById('today-card');
+  const todayStr = isoToday();
+
+  let discount = null, code = null;
+
+  if (liveCode) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(liveCode.html, 'text/html');
+    const heading = doc.querySelector('.lp-special-action-text-heading');
+    if (heading) {
+      const strongs = heading.querySelectorAll('strong');
+      strongs.forEach(s => {
+        if (s.closest('.enter-code')) code = s.textContent.trim();
+        else discount = s.textContent.trim();
+      });
+    }
+  }
+
+  if (!discount && appData) {
+    const entry = appData.history.find(e => e.date === todayStr);
+    if (entry) { discount = entry.discount; code = entry.code; }
+  }
+
+  // Always resolve today's prediction
+  const todayPred = appData?.predictions?.find(p => p.date === todayStr);
+  const predTop = todayPred?.candidates?.[0] ?? null;
+
+  function predBlock(actualDiscount) {
+    if (!predTop) return '';
+    const varHints = predTop.variants?.length > 1
+      ? predTop.variants.slice(0,4).map(v => shortVariant(v.discount)).join(' · ')
+      : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
+    const varSpan = varHints ? ` <span style="color:var(--muted);font-size:.75rem">(${escHtml(varHints)})</span>` : '';
+
+    let hitBadge = '';
+    if (actualDiscount) {
+      const actualKey = discountTypeKey(actualDiscount);
+      const hit = actualKey === predTop.type_key;
+      hitBadge = hit
+        ? `<span style="color:var(--green);font-weight:600;margin-left:8px">✓ Trefili jsme se</span>`
+        : `<span style="color:var(--red);font-weight:600;margin-left:8px">✗ Netrefili jsme se</span>`;
+    }
+
+    return `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:left">
+      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Predikce na dnes${hitBadge}</div>
+      <div style="font-size:.9rem">${escHtml(predTop.type_key)}${varSpan}</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:2px">Pravděpodobnost: <strong style="color:var(--accent2)">${(predTop.probability*100).toFixed(0)}%</strong></div>
+    </div>`;
+  }
+
+  if (!discount) {
+    if (predTop) {
+      const varHints = predTop.variants?.length > 1
+        ? predTop.variants.slice(0,4).map(v => shortVariant(v.discount)).join(' · ')
+        : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
+      const variantHint = varHints ? `<div style="color:var(--muted);font-size:.78rem;margin-top:4px">${escHtml(varHints)}</div>` : '';
+      card.innerHTML = `
+        <div class="label">Dnešní kód ještě nebyl zveřejněn — predikce</div>
+        <div class="discount">${escHtml(predTop.type_key)}</div>
+        ${variantHint}
+        <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Pravděpodobnost: <strong style="color:var(--accent2)">${(predTop.probability*100).toFixed(0)}%</strong></div>`;
+    } else {
+      card.innerHTML = `<div class="label">Dnes</div><div class="no-code">Žádný tajný kód zatím nenalezen.</div>`;
+    }
+    return;
+  }
+
+  card.innerHTML = `
+    <div class="label">Dnešní tajný kód — ${formatDateCz(todayStr)}</div>
+    <div class="discount">${escHtml(discount)}</div>
+    ${code
+      ? `<div class="code-wrap">
+           <span class="code" id="live-code-text">${escHtml(code)}</span>
+           <button class="copy-btn" id="copy-btn" onclick="copyCode()">Kopírovat</button>
+         </div>`
+      : `<div class="no-code">Kód nenalezen v banneru.</div>`}
+    ${predBlock(discount)}`;
+}
+
+function copyCode() {
+  const txt = document.getElementById('live-code-text')?.textContent;
+  if (!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = 'Zkopírováno!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+}
+
+// ─── Week predictions ─────────────────────────────────────────────────────────
+function renderWeekMini() { renderWeekCards('week-mini', 7); }
+
+function renderWeekCards(containerId, days) {
+  const wrap = document.getElementById(containerId);
+  if (!appData) { wrap.innerHTML = '<div class="error-msg">Data nedostupná.</div>'; return; }
+
+  const preds = appData.predictions.slice(0, days);
+  if (!preds.length) { wrap.innerHTML = '<div class="error-msg">Žádné predikce.</div>'; return; }
+
+  wrap.innerHTML = preds.map((p, i) => `
+    <div class="pred-card ${i === 0 ? 'top-pred' : ''}">
+      <div class="date-label">${formatDateCz(p.date)}</div>
+      <div class="dow">${DAYS_CZ[p.day_of_week]}</div>
+      ${p.candidates.length ? p.candidates.slice(0,3).map(c => {
+        const label = c.type_key || c.discount || '';
+        const varHint = c.variants && c.variants.length > 1
+          ? `<div style="color:var(--muted);font-size:.68rem;margin-top:2px">${c.variants.slice(0,4).map(v=>shortVariant(v.discount)).join(' · ')}</div>`
+          : '';
+        return `<div class="candidate">
+          <div class="prob-bar-wrap">
+            <div class="candidate-name">${escHtml(label)}${varHint}</div>
+            <div class="prob-bar"><div class="prob-fill" style="width:${Math.round(c.probability*100)}%"></div></div>
+          </div>
+          <div class="prob-pct">${(c.probability*100).toFixed(0)}%</div>
+        </div>`;
+      }).join('') : '<div style="color:var(--muted);font-size:.8rem">Nedostatek dat</div>'}
+    </div>`).join('');
+}
+
+// ─── Forecast ─────────────────────────────────────────────────────────────────
+function setForecastDays(n, btn) {
+  forecastDays = n;
+  document.querySelectorAll('.forecast-controls button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderForecast();
+}
+
+function renderForecast() {
+  const wrap = document.getElementById('forecast-table-wrap');
+  if (!appData) { wrap.innerHTML = '<div class="error-msg">Data nedostupná.</div>'; return; }
+
+  const preds = appData.predictions.slice(0, forecastDays);
+  if (!preds.length) { wrap.innerHTML = '<div class="error-msg">Žádné predikce.</div>'; return; }
+
+  const rows = preds.map(p => {
+    const chips = p.candidates.map((c, i) => {
+      const label = c.type_key || c.discount || '';
+      return `<span class="prob-chip ${i===0?'top':''}" title="${escHtml(c.top_variant||'')}">` +
+        `${(c.probability*100).toFixed(0)}% ${escHtml(label)}</span>`;
+    }).join('') || '<span style="color:var(--muted)">—</span>';
+    return `<tr>
+      <td>${formatDateCz(p.date)}</td>
+      <td>${DAYS_CZ[p.day_of_week]}</td>
+      <td>${chips}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `<table class="forecast-table">
+    <thead><tr><th>Datum</th><th>Den</th><th>Kandidáti</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+function renderHistory() {
+  if (!appData) {
+    document.getElementById('history-table-wrap').innerHTML = '<div class="error-msg">Data nedostupná.</div>';
+    return;
+  }
+  filteredHistory = appData.history;
+  renderHistoryTable();
+}
+
+function filterHistory() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  filteredHistory = q
+    ? appData.history.filter(e =>
+        e.discount.toLowerCase().includes(q) ||
+        (e.code||'').toLowerCase().includes(q) ||
+        e.date.includes(q))
+    : appData.history;
+  historyPage = 50;
+  renderHistoryTable();
+}
+
+function renderHistoryTable() {
+  const wrap = document.getElementById('history-table-wrap');
+  document.getElementById('history-count').textContent =
+    `${filteredHistory.length} záznamů`;
+
+  const slice = filteredHistory.slice(0, historyPage);
+  const rows = slice.map(e => `<tr>
+    <td>${formatDateCz(e.date)}</td>
+    <td>${DAYS_CZ[new Date(e.date + 'T12:00:00').getDay() === 0 ? 6 : new Date(e.date + 'T12:00:00').getDay() - 1]}</td>
+    <td>${escHtml(e.discount)}</td>
+    <td>${e.code ? `<span class="code-chip">${escHtml(e.code)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+    <td><span class="source-chip ${e.source==='endpoint'?'endpoint':''}">${e.source||'csv'}</span></td>
+  </tr>`).join('');
+
+  const hasMore = filteredHistory.length > historyPage;
+  wrap.innerHTML = `
+    <table class="history-table">
+      <thead><tr><th>Datum</th><th>Den</th><th>Sleva</th><th>Kód</th><th>Zdroj</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${hasMore ? `<button class="load-more" onclick="loadMoreHistory()">Načíst další (${filteredHistory.length - historyPage} zbývá)</button>` : ''}`;
+}
+
+function loadMoreHistory() {
+  historyPage += 100;
+  renderHistoryTable();
+}
+
+// ─── Accuracy ─────────────────────────────────────────────────────────────────
+function renderAccuracy() {
+  if (!appData) return;
+  const acc = appData.accuracy || {};
+  const total   = acc.total || 0;
+  const correct = acc.correct || 0;
+  const pct = total ? Math.round(correct / total * 100) : 0;
+  const log = (acc.log || []).slice().reverse();
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Ověřených predikcí</div></div>
+    <div class="stat-card"><div class="stat-value">${correct}</div><div class="stat-label">Správných</div></div>
+    <div class="stat-card"><div class="stat-value">${total - correct}</div><div class="stat-label">Chybných</div></div>
+    <div class="stat-card"><div class="stat-value">${pct}%</div><div class="stat-label">Přesnost</div></div>`;
+
+  if (!log.length) {
+    document.getElementById('accuracy-log-wrap').innerHTML =
+      '<p style="color:var(--muted);font-size:.85rem">Data se začnou plnit automaticky po prvním zachyceném kódu přes endpoint.</p>';
+    return;
+  }
+
+  const rows = log.map(l => `<tr>
+    <td>${formatDateCz(l.date)}</td>
+    <td>${escHtml(l.predicted_type || l.predicted || '')}</td>
+    <td>${escHtml(l.actual)}</td>
+    <td class="${l.correct ? 'correct-yes' : 'correct-no'}">
+      <span class="${l.correct ? 'badge-correct' : 'badge-wrong'}"></span>
+      ${l.correct ? 'Správně' : 'Špatně'}
+    </td>
+  </tr>`).join('');
+
+  document.getElementById('accuracy-log-wrap').innerHTML = `
+    <table class="accuracy-log">
+      <thead><tr><th>Datum</th><th>Predikce</th><th>Skutečnost</th><th>Výsledek</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function isoToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatDateCz(isoStr) {
+  if (!isoStr) return '?';
+  const [y, m, d] = isoStr.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function shortVariant(discount) {
+  const m = discount.match(/(\d+)\s*%/);
+  return m ? m[1] + ' %' : discount;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

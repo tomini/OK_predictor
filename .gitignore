@@ -1,0 +1,12 @@
+# Stará zdrojová data (nahrazena OdKarla_2025-Q2_26.csv)
+OdKarla - 29.12.2022 to 07.06.2026.csv
+OdKarla - 29.12.2022 to 07.06.2026.xlsx
+OdKarla_2025-Q2_26.xlsx
+
+# Starý analyzátor
+OdKarla_analyzer.py
+
+# Python
+__pycache__/
+*.pyc
+.venv/

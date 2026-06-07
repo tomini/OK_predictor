@@ -1,0 +1,126 @@
+// ==UserScript==
+// @name         FB OdKarla Extractor (Průběžný)
+// @namespace    http://tampermonkey.net/
+// @version      3.0
+// @description  Průběžně sbírá nadpisy, data a kódy z FB příspěvků během scrollování.
+// @author       Gemini + Claude
+// @match        *://*.facebook.com/groups/733872554290910/user/100064119395991*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const collectedPosts = new Set();
+    let buttonRef = null;
+
+    function updateButtonText() {
+        if (buttonRef) {
+            buttonRef.textContent = `📋 Zkopírovat (${collectedPosts.size} uloženo)`;
+        }
+    }
+
+    function extractPostsOnScreen() {
+        const posts = document.querySelectorAll('[data-ad-rendering-role="story_message"]');
+
+        posts.forEach(post => {
+            let heading = "";
+            let date = "";
+            let code = "";
+
+            // --- Nadpis ---
+            const h3 = post.querySelector('h3');
+            if (h3) {
+                heading = h3.innerText.replace(/🎯\s*/g, '').trim();
+            } else {
+                const firstStrong = post.querySelector('strong');
+                if (firstStrong) {
+                    heading = firstStrong.innerText.replace(/🎯\s*/g, '').trim();
+                }
+            }
+
+            const postText = post.innerText;
+
+            // --- Datum ---
+            // Preferuj datum z řádku "platí ... DD. M. YYYY" (přesnější než první výskyt)
+            const dateLineMatch = postText.match(/platí[^\n]*?(\d{1,2}\.\s*\d{1,2}\.\s*\d{4})/i);
+            if (dateLineMatch) {
+                date = dateLineMatch[1].replace(/\s+/g, '');
+            } else {
+                const dateMatch = postText.match(/(\d{1,2}\.\s*\d{1,2}\.\s*\d{4})/);
+                if (dateMatch) {
+                    date = dateMatch[1].replace(/\s+/g, '');
+                }
+            }
+
+            // --- Kód ---
+            // "zadejte v košíku kód XXXXXXX"
+            const codeMatch = postText.match(/zadejte v košíku kód\s+([A-Za-z0-9]+)/i);
+            if (codeMatch) {
+                code = codeMatch[1].toUpperCase();
+            }
+
+            if (heading || date) {
+                heading = heading || "Bez nadpisu";
+                date = date || "Datum nenalezeno";
+                // Formát: Nadpis [TAB] Datum [TAB] Kód
+                const entry = `${heading}\t${date}\t${code}`;
+                collectedPosts.add(entry);
+            }
+        });
+
+        updateButtonText();
+    }
+
+    function addCopyButton() {
+        if (document.getElementById('odkarla-extractor-btn')) {
+            return;
+        }
+
+        const btn = document.createElement('button');
+        btn.id = 'odkarla-extractor-btn';
+        btn.textContent = '📋 Zkopírovat (0 uloženo)';
+        btn.style.position = 'fixed';
+        btn.style.bottom = '20px';
+        btn.style.right = '20px';
+        btn.style.zIndex = '999999';
+        btn.style.padding = '12px 20px';
+        btn.style.backgroundColor = '#0866FF';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '8px';
+        btn.style.cursor = 'pointer';
+        btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+        btn.style.fontWeight = 'bold';
+        btn.style.fontSize = '16px';
+        btn.style.fontFamily = 'Arial, sans-serif';
+
+        btn.onmouseover = () => btn.style.backgroundColor = '#0054d1';
+        btn.onmouseout = () => btn.style.backgroundColor = '#0866FF';
+
+        btn.addEventListener('click', () => {
+            if (collectedPosts.size > 0) {
+                const finalString = Array.from(collectedPosts).join('\n');
+                navigator.clipboard.writeText(finalString).then(() => {
+                    alert(`Úspěšně zkopírováno ${collectedPosts.size} příspěvků!\nFormát: Sleva [TAB] Datum [TAB] Kód\nNyní vlož (Ctrl+V) do Excelu nebo poznámkového bloku.`);
+                }).catch(err => {
+                    alert('Chyba při kopírování: ' + err);
+                });
+            } else {
+                alert('Zatím nebyly načteny žádné příspěvky. Zkus posunout stránku dolů.');
+            }
+        });
+
+        if (document.body) {
+            document.body.appendChild(btn);
+            buttonRef = btn;
+            updateButtonText();
+        }
+    }
+
+    setInterval(() => {
+        addCopyButton();
+        extractPostsOnScreen();
+    }, 1000);
+
+})();
