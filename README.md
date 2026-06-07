@@ -125,6 +125,13 @@ Chronologické pořadí řádků nehraje roli — skript řadí automaticky.
 
 Actions běží každou hodinu automaticky. Nový záznam se uloží do hodiny po tom, co OdKarla kód zveřejní (obvykle těsně po půlnoci CEST). Datum se přiřazuje vždy podle pražského času.
 
+Chceš-li spustit fetch okamžitě (např. ověřit že kód už je živý):
+1. GitHub repo → záložka **Actions**
+2. Vlevo vyber **Update discount data**
+3. Vpravo nahoře klikni **Run workflow** → **Run workflow** (pole nech prázdná)
+
+Skript fetchne endpoint a pokud je kód aktivní, uloží ho. Pokud ne, nic se nestane.
+
 ---
 
 ### Dnešní kód nebyl zachycen (okno zmeškat / výpadek)
