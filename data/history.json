@@ -5,7 +5,7 @@
       "date": "2026-06-08",
       "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
       "code": "8CERMEGAE",
-      "source": "manual"
+      "source": "endpoint"
     },
     {
       "date": "2026-06-07",
