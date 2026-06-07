@@ -239,10 +239,11 @@ Zkontroluj:
 ## Nasazení
 
 1. Forkni / pushni repozitář na GitHub (privátní nebo veřejný).
-2. **Settings → Pages** — nastav zdroj na `main` / `/ (root)`.
+2. **Settings → Pages** — nastav Source na **GitHub Actions** (ne "Deploy from a branch").
 3. **Settings → Actions → General** — povol `Read and write permissions`.
 4. Spusť `convert_csv.py` lokálně, výsledný `data/history.json` commituj a pushni.
-5. Actions se spustí automaticky každou hodinu.
+5. Ručně spusť workflow **Deploy Pages** jednou (Actions → Deploy Pages → Run workflow) — aktivuje GitHub Pages environment.
+6. Od té doby: Pages se rebuilduje jen při změně `index.html`, hodinové datové commity rebuild nespouštějí.
 
 ---
 
@@ -257,6 +258,7 @@ Zkontroluj:
 │   ├── update_data.py          # hodinový runner (Actions)
 │   └── requirements.txt
 ├── .github/workflows/
-│   └── update.yml              # GitHub Actions definice
+│   ├── update.yml              # hodinový fetch endpointu
+│   └── pages.yml               # deploy Pages (spouští se jen při změně index.html)
 └── FB OdKarla Extractor (Průběžný)-2.0.txt   # UserScript pro sběr dat
 ```
