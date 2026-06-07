@@ -24,7 +24,7 @@ CSV_FILES = [
 # Only use data from this date onwards for predictions
 DATE_FROM = date(2025, 1, 1)
 
-DAYS_AHEAD = 30
+DAYS_AHEAD = 90
 RECENT_WEIGHT = 3.0   # last 90 days
 MID_WEIGHT = 2.0      # 90-180 days
 OLD_WEIGHT = 1.0      # older

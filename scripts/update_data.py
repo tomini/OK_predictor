@@ -20,7 +20,7 @@ DATA_FILE = ROOT / "data" / "history.json"
 ENDPOINT  = "https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret"
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
-DAYS_AHEAD    = 30
+DAYS_AHEAD    = 90
 DATE_FROM     = date(2025, 1, 1)   # only this window used for prediction weights
 RECENT_WEIGHT = 3.0
 MID_WEIGHT    = 2.0
