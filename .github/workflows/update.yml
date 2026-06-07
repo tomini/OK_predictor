@@ -46,6 +46,15 @@ jobs:
           MANUAL_CODE: ${{ inputs.manual_code }}
         run: python scripts/update_data.py
 
+      - name: Notify Discord on failure
+        if: failure()
+        run: |
+          curl -s -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"🔴 **OdKarla prediktor** — GitHub Actions job selhal. Zkontroluj: https://github.com/${{ github.repository }}/actions\"}"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"

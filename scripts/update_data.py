@@ -47,6 +47,16 @@ def discount_type_key(s):
     return s
 
 
+def notify_discord(message: str):
+    url = os.environ.get("DISCORD_WEBHOOK", "").strip()
+    if not url:
+        return
+    try:
+        requests.post(url, json={"content": message}, timeout=10)
+    except Exception as e:
+        print(f"Discord notify failed: {e}")
+
+
 def normalize(text):
     if not text:
         return ""
@@ -86,6 +96,7 @@ def fetch_current_code():
         payload = r.json()
     except Exception as e:
         print(f"Fetch error: {e}")
+        notify_discord(f"⚠️ **OdKarla prediktor** — chyba fetchování endpointu:\n```{e}```")
         return None, None
 
     d = payload.get("data", {})
@@ -98,6 +109,7 @@ def fetch_current_code():
     heading = soup.find(class_="lp-special-action-text-heading")
     if not heading:
         print(f"Cannot parse heading. HTML: {html[:200]}")
+        notify_discord(f"⚠️ **OdKarla prediktor** — HTML struktura banneru se změnila, nelze naparsovat slevu.\nHTML: `{html[:300]}`")
         return None, None
 
     strongs  = heading.find_all("strong")
@@ -257,6 +269,9 @@ def main():
     if discount:
         if not existing_today:
             print(f"New entry: {discount} | code={code}")
+            # Warn if discount doesn't match any known normalization pattern
+            if discount_type_key(discount) == discount:
+                notify_discord(f"ℹ️ **OdKarla prediktor** — neznámý formát slevy (nesedí žádná normalizace):\n`{discount}`\nZkontroluj `discount_type_key()` v update_data.py.")
             check_accuracy(data, today_str, discount)
             data["history"].append({
                 "date":     today_str,
