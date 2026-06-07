@@ -60,6 +60,8 @@ Odpověď obsahuje pole `data.isSecretCode`:
 - **`true`** — právě běží denní tajná akce. Skript naparsuje HTML (`lp-special-action-text-heading`) a extrahuje popis slevy a kód.
 - **`false`** — aktivní je jen permanentní kód (např. `SLE25NVK`). Skript nic nezapisuje.
 
+Text slevy z endpointu může obsahovat prefix „TAJNÝ KÓD JEN PRO VÁS." — skript ho automaticky ořízne, aby názvy odpovídaly stylu historických dat z FB.
+
 Pokud byl pro dnešní datum záznam již uložen, skript ho nepřepíše (pouze doplní kód, pokud chybí). Při nové položce se automaticky vyhodnotí přesnost dřívější predikce.
 
 Po každém běhu se přepočítají predikce a pokud se `history.json` změnil, Actions ho commituje (`github-actions[bot]`) a pushne.
