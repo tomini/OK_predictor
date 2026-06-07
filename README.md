@@ -4,6 +4,29 @@ Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akc
 
 ---
 
+## Obsah
+
+- [Jak to funguje](#jak-to-funguje)
+  - [Datový model](#datový-model)
+  - [Automatické plnění dat](#automatické-plnění-dat)
+  - [Ruční zadání (korekce / doplnění)](#ruční-zadání-korekce--doplnění)
+  - [Predikce](#predikce)
+  - [Sledování přesnosti](#sledování-přesnosti)
+  - [Sběr historických dat (UserScript)](#sběr-historických-dat-userscript)
+  - [Jednorázový import CSV](#jednorázový-import-csv)
+- [Workflow – běžné situace](#workflow--běžné-situace)
+  - [Normální provoz (nic nedělat)](#normální-provoz-nic-nedělat)
+  - [Dnešní kód nebyl zachycen](#dnešní-kód-nebyl-zachycen-okno-zmeškat--výpadek)
+  - [Oprava existujícího záznamu](#oprava-existujícího-záznamu-špatný-popis-nebo-kód)
+  - [Doplnění více záznamů najednou (backfill)](#doplnění-více-záznamů-najednou-backfill-rok-2024-apod)
+  - [Sběr nových historických dat přes UserScript](#sběr-nových-historických-dat-přes-userscript)
+  - [Predikce jsou zkreslené / chci přepočítat](#predikce-jsou-zkreslené--chci-přepočítat)
+  - [Actions přestaly fungovat](#actions-přestaly-fungovat--repozitář-byl-přenesen)
+- [Nasazení](#nasazení)
+- [Struktura repozitáře](#struktura-repozitáře)
+
+---
+
 ## Jak to funguje
 
 ### Datový model
