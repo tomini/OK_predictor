@@ -13,16 +13,22 @@ from collections import defaultdict
 
 import requests
 from bs4 import BeautifulSoup
+from zoneinfo import ZoneInfo
 
 ROOT      = Path(__file__).parent.parent
 DATA_FILE = ROOT / "data" / "history.json"
 ENDPOINT  = "https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret"
+PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 DAYS_AHEAD    = 30
 DATE_FROM     = date(2025, 1, 1)   # only this window used for prediction weights
 RECENT_WEIGHT = 3.0
 MID_WEIGHT    = 2.0
 OLD_WEIGHT    = 1.0
+
+
+def today_prague() -> date:
+    return datetime.now(PRAGUE_TZ).date()
 
 
 # ─── Discount type normalization ─────────────────────────────────────────────
@@ -116,7 +122,7 @@ def fetch_current_code():
 # ─── Prediction computation ───────────────────────────────────────────────────
 
 def compute_predictions(history_entries, days_ahead=DAYS_AHEAD):
-    today      = date.today()
+    today      = today_prague()
     cutoff_90  = today - timedelta(days=90)
     cutoff_180 = today - timedelta(days=180)
 
@@ -209,7 +215,7 @@ def check_accuracy(data, date_str, actual_discount):
 
 def main():
     data      = load_data()
-    today_str = date.today().isoformat()
+    today_str = today_prague().isoformat()
 
     # --- Manual entry via workflow_dispatch ---
     manual_date     = os.environ.get("MANUAL_DATE", "").strip()
