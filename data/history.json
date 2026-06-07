@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-07T23:51:30.461519Z",
+  "last_updated": "2026-06-07T23:54:13.971204Z",
   "history": [
     {
       "date": "2026-06-08",
@@ -9152,16 +9152,9 @@
     }
   ],
   "accuracy": {
-    "total": 2,
-    "correct": 2,
+    "total": 1,
+    "correct": 1,
     "log": [
-      {
-        "date": "2026-06-08",
-        "predicted_type": "SLEVA % | MEGAVÝPRODEJ",
-        "predicted": "OBŘÍ SLEVA 73 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM MEGAVÝPRODEJ",
-        "actual": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
-        "correct": true
-      },
       {
         "date": "2026-06-08",
         "predicted_type": "SLEVA % | MEGAVÝPRODEJ",
