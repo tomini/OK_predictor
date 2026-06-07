@@ -1,11 +1,11 @@
 {
-  "last_updated": "2026-06-07T22:12:09.198792Z",
+  "last_updated": "2026-06-07T22:29:21.236947Z",
   "history": [
     {
       "date": "2026-06-08",
-      "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+      "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
       "code": "8CERMEGAE",
-      "source": "endpoint"
+      "source": "manual"
     },
     {
       "date": "2026-06-07",
@@ -3123,7 +3123,7 @@
               "weight": 23.0
             },
             {
-              "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
               "weight": 3.0
             },
             {
@@ -3588,7 +3588,7 @@
               "weight": 23.0
             },
             {
-              "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
               "weight": 3.0
             },
             {
@@ -4053,7 +4053,7 @@
               "weight": 23.0
             },
             {
-              "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
               "weight": 3.0
             },
             {
@@ -4518,7 +4518,7 @@
               "weight": 23.0
             },
             {
-              "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
               "weight": 3.0
             },
             {
@@ -4983,7 +4983,7 @@
               "weight": 23.0
             },
             {
-              "discount": "TAJNÝ KÓD JEN PRO VÁS. SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
               "weight": 3.0
             },
             {
