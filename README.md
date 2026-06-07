@@ -80,7 +80,7 @@ Různé procentní výše stejné akce (např. `OBŘÍ SLEVA 62 %...` a `OBŘÍ 
 | `SLEVA N KČ` | `SLEVA KČ` |
 | ostatní | původní text |
 
-Predikční karta zobrazuje klíč (`SLEVA % | MEGAVÝPRODEJ`) s podřádkem procentních variant (`62 % · 73 %`).
+Predikční karta zobrazuje klíč (`SLEVA % | MEGAVÝPRODEJ`) s podřádkem procentních variant (`62 % · 73 % · 85 %`) — to jsou všechna procenta, se kterými se daný typ v historii vyskytl, seřazená od nejčastějšího. Predikce říká **jaký typ akce** s jakou pravděpodobností nastane, nikoliv přesné procento.
 
 ---
 
