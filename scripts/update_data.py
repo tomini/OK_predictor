@@ -7,7 +7,7 @@ import json
 import os
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from collections import defaultdict
 
@@ -69,7 +69,7 @@ def load_data():
 
 
 def save_data(data):
-    data["last_updated"]  = datetime.utcnow().isoformat() + "Z"
+    data["last_updated"]  = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     data["analysis_from"] = DATE_FROM.isoformat()
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:

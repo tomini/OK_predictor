@@ -8,7 +8,7 @@ Filters to DATE_FROM onwards to avoid old policy data skewing predictions.
 import json
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from collections import defaultdict
 
@@ -208,7 +208,7 @@ def main():
             pass
 
     data = {
-        "last_updated": datetime.utcnow().isoformat() + "Z",
+        "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "history":      history,
         "predictions":  predictions,
         "accuracy":     existing_accuracy,
