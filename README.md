@@ -2,6 +2,8 @@
 
 Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akce e-shopu [OdKarla.cz](https://www.odkarla.cz) na základě historických dat. Data se automaticky doplňují přes GitHub Actions.
 
+[![Otevřít aplikaci](https://img.shields.io/badge/Otevřít_aplikaci-OdKarla_Prediktor-7c6af7?style=for-the-badge)](https://tomini.github.io/OK_predictor/)
+
 ---
 
 ## Obsah
