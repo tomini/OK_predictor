@@ -81,6 +81,13 @@ def load_data():
 def save_data(data):
     data["last_updated"]  = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     data["analysis_from"] = DATE_FROM.isoformat()
+    # Deduplicate accuracy log — keep last entry per date
+    seen = {}
+    for entry in data["accuracy"]["log"]:
+        seen[entry["date"]] = entry
+    data["accuracy"]["log"] = list(seen.values())
+    data["accuracy"]["total"]   = len(data["accuracy"]["log"])
+    data["accuracy"]["correct"] = sum(1 for e in data["accuracy"]["log"] if e["correct"])
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
