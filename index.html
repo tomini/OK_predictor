@@ -381,7 +381,7 @@ function renderToday() {
   function predBlock(actualDiscount) {
     if (!predTop) return '';
     const varHints = predTop.variants?.length > 1
-      ? predTop.variants.slice(0,4).map(v => shortVariant(v.discount)).join(' · ')
+      ? [...new Set(predTop.variants.map(v => shortVariant(v.discount)))].slice(0,4).join(' · ')
       : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
     const varSpan = varHints ? ` <span style="color:var(--muted);font-size:.75rem">(${escHtml(varHints)})</span>` : '';
 
@@ -404,7 +404,7 @@ function renderToday() {
   if (!discount) {
     if (predTop) {
       const varHints = predTop.variants?.length > 1
-        ? predTop.variants.slice(0,4).map(v => shortVariant(v.discount)).join(' · ')
+        ? [...new Set(predTop.variants.map(v => shortVariant(v.discount)))].slice(0,4).join(' · ')
         : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
       const variantHint = varHints ? `<div style="color:var(--muted);font-size:.78rem;margin-top:4px">${escHtml(varHints)}</div>` : '';
       card.innerHTML = `
@@ -458,7 +458,7 @@ function renderWeekCards(containerId, days) {
       ${p.candidates.length ? p.candidates.slice(0,3).map(c => {
         const label = c.type_key || c.discount || '';
         const varHint = c.variants && c.variants.length > 1
-          ? `<div style="color:var(--muted);font-size:.68rem;margin-top:2px">${c.variants.slice(0,4).map(v=>shortVariant(v.discount)).join(' · ')}</div>`
+          ? `<div style="color:var(--muted);font-size:.68rem;margin-top:2px">${[...new Set(c.variants.map(v=>shortVariant(v.discount)))].slice(0,4).join(' · ')}</div>`
           : '';
         return `<div class="candidate">
           <div class="prob-bar-wrap">
