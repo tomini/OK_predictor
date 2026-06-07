@@ -198,11 +198,20 @@ def main():
     # Predictions use only DATE_FROM+ data
     predictions = compute_predictions(history)
 
+    # Preserve existing accuracy log if history.json already exists
+    existing_accuracy = {"total": 0, "correct": 0, "log": []}
+    if DATA_FILE.exists():
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                existing_accuracy = json.load(f).get("accuracy", existing_accuracy)
+        except Exception:
+            pass
+
     data = {
         "last_updated": datetime.utcnow().isoformat() + "Z",
         "history":      history,
         "predictions":  predictions,
-        "accuracy":     {"total": 0, "correct": 0, "log": []},
+        "accuracy":     existing_accuracy,
         "analysis_from": DATE_FROM.isoformat(),
     }
 

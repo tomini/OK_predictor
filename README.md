@@ -119,6 +119,89 @@ Chronologické pořadí řádků nehraje roli — skript řadí automaticky.
 
 ---
 
+## Workflow – běžné situace
+
+### Normální provoz (nic nedělat)
+
+Actions běží každou hodinu automaticky. Nový záznam se uloží do hodiny po tom, co OdKarla kód zveřejní (obvykle těsně po půlnoci CEST). Datum se přiřazuje vždy podle pražského času.
+
+---
+
+### Dnešní kód nebyl zachycen (okno zmeškat / výpadek)
+
+Kód přestal být aktivní dřív než cron dobíhal, nebo Actions selhaly.
+
+1. GitHub → **Actions → Update discount data → Run workflow**
+2. Vyplň:
+   - `manual_date`: dnešní datum (`YYYY-MM-DD`)
+   - `manual_discount`: popis slevy přesně jak byl na webu (velkými písmeny)
+   - `manual_code`: slevový kód
+3. Spusť. Záznam se přidá a vyhodnotí přesnost predikce.
+
+> Kde vzít popis: FB skupina OdKarla, email nebo přímo web v den akce.
+
+---
+
+### Oprava existujícího záznamu (špatný popis nebo kód)
+
+Workflow_dispatch s **stejným datem** jako opravovaný záznam — skript existující záznam přepíše.
+
+1. Actions → Run workflow
+2. Vyplň `manual_date` + správný `manual_discount` + správný `manual_code`
+3. Spusť.
+
+> Pokud opravuješ jen kód a popis je správný, musíš vyplnit i popis — jinak ho skript přepíše prázdným.
+
+---
+
+### Doplnění více záznamů najednou (backfill, rok 2024 apod.)
+
+Workflow_dispatch je pro hromadné doplňování nepraktický (jeden záznam za spuštění). Místo toho:
+
+1. Otevři `OdKarla_2025-Q2_26.csv` v editoru nebo Excelu.
+2. Přidej řádky ve formátu `Sleva;DD.MM.YYYY;KOD` — chronologické pořadí nehraje roli, skript řadí sám.
+3. Ulož jako UTF-8 s BOM (v Excelu: Uložit jako → CSV UTF-8 s kusovníkem).
+4. Lokálně spusť:
+   ```bash
+   python scripts/convert_csv.py
+   ```
+5. Commitni a pushni `data/history.json` (a případně upravené CSV):
+   ```bash
+   git add data/history.json OdKarla_2025-Q2_26.csv
+   git commit -m "data: backfill ..."
+   git push
+   ```
+
+> Accuracy log se při reimportu **zachová** — existující vyhodnocení predikcí se nepřepíší.
+
+---
+
+### Sběr nových historických dat přes UserScript
+
+Pokud chceš doplnit starší záznamy ze FB skupiny, které v CSV chybí:
+
+1. Nainstaluj UserScript `FB OdKarla Extractor (Průběžný)-2.0.txt` do Tampermonkey.
+2. Otevři FB skupinu OdKarla, procházej příspěvky — skript průběžně sbírá.
+3. Na konci klikni na tlačítko v UI — zkopíruje tab-separovaný výstup (`Sleva\tDatum\tKód`).
+4. Vlož do CSV (přidej řádky do `OdKarla_2025-Q2_26.csv`), pak viz backfill postup výše.
+
+---
+
+### Predikce jsou zkreslené / chci přepočítat
+
+Stačí znovu lokálně spustit `python scripts/convert_csv.py` a pushnout `data/history.json`. Actions přepočítají predikce také automaticky při každém hodinovém běhu.
+
+---
+
+### Actions přestaly fungovat / repozitář byl přenesen
+
+Zkontroluj:
+- **Settings → Actions → General** → `Read and write permissions` musí být povoleno
+- **Settings → Pages** → source nastaveno na `main` / `/ (root)`
+- Workflow `update.yml` existuje v `.github/workflows/`
+
+---
+
 ## Nasazení
 
 1. Forkni / pushni repozitář na GitHub (privátní nebo veřejný).
