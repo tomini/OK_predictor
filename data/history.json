@@ -9461,7 +9461,8 @@
         "actual": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
         "correct": false
       }
-    ]
+    ],
+    "changelog": []
   },
   "analysis_from": "2025-01-01"
 }

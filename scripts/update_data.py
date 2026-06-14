@@ -73,7 +73,7 @@ def load_data():
         "last_updated":  None,
         "history":       [],
         "predictions":   [],
-        "accuracy":      {"total": 0, "correct": 0, "log": []},
+        "accuracy":      {"total": 0, "correct": 0, "log": [], "changelog": []},
         "analysis_from": DATE_FROM.isoformat(),
     }
 
@@ -88,6 +88,8 @@ def save_data(data):
     data["accuracy"]["log"] = list(seen.values())
     data["accuracy"]["total"]   = len(data["accuracy"]["log"])
     data["accuracy"]["correct"] = sum(1 for e in data["accuracy"]["log"] if e["correct"])
+    if "changelog" not in data["accuracy"]:
+        data["accuracy"]["changelog"] = []
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

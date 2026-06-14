@@ -209,6 +209,13 @@
     .accuracy-log tr:hover td { background: var(--surface2); }
     .correct-yes { color: var(--green); font-weight: 600; }
     .correct-no  { color: var(--red); }
+    .changelog-row td { background: #1a1525; border-top: 2px solid var(--accent);
+                        color: var(--muted); font-size: 0.78rem; padding: 6px 12px; }
+    .changelog-row:hover td { background: #1a1525 !important; }
+    .changelog-badge { display: inline-block; background: var(--accent); color: #fff;
+                       font-size: 0.68rem; font-weight: 700; border-radius: 4px;
+                       padding: 1px 6px; margin-right: 8px; text-transform: uppercase;
+                       letter-spacing: 0.05em; }
 
     /* ── Utilities ── */
     .spinner {
@@ -564,6 +571,7 @@ function renderAccuracy() {
   const correct = acc.correct || 0;
   const pct = total ? Math.round(correct / total * 100) : 0;
   const log = (acc.log || []).slice().reverse();
+  const changelog = acc.changelog || [];
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Ověřených predikcí</div></div>
@@ -577,15 +585,28 @@ function renderAccuracy() {
     return;
   }
 
-  const rows = log.map(l => `<tr>
-    <td>${formatDateCz(l.date)}</td>
-    <td>${escHtml(l.predicted_type || l.predicted || '')}</td>
-    <td>${escHtml(l.actual)}</td>
-    <td class="${l.correct ? 'correct-yes' : 'correct-no'}">
-      <span class="${l.correct ? 'badge-correct' : 'badge-wrong'}"></span>
-      ${l.correct ? 'Správně' : 'Špatně'}
-    </td>
-  </tr>`).join('');
+  // Build set of changelog dates for quick lookup (newest-first log, so changelog rows appear above the entry on that date)
+  const changelogByDate = {};
+  changelog.forEach(c => { changelogByDate[c.date] = c.note; });
+
+  const rows = log.flatMap(l => {
+    const clNote = changelogByDate[l.date];
+    const clRow = clNote ? [`<tr class="changelog-row">
+      <td colspan="4">
+        <span class="changelog-badge">Změna modelu</span>
+        ${escHtml(clNote)}
+      </td>
+    </tr>`] : [];
+    return [...clRow, `<tr>
+      <td>${formatDateCz(l.date)}</td>
+      <td>${escHtml(l.predicted_type || l.predicted || '')}</td>
+      <td>${escHtml(l.actual)}</td>
+      <td class="${l.correct ? 'correct-yes' : 'correct-no'}">
+        <span class="${l.correct ? 'badge-correct' : 'badge-wrong'}"></span>
+        ${l.correct ? 'Správně' : 'Špatně'}
+      </td>
+    </tr>`];
+  }).join('');
 
   document.getElementById('accuracy-log-wrap').innerHTML = `
     <table class="accuracy-log">
