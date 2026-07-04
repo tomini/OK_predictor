@@ -266,9 +266,8 @@
   <section id="tab-forecast">
     <h2>Výhled</h2>
     <div class="forecast-controls">
+      <button onclick="setForecastDays(7, this)">7 dní</button>
       <button class="active" onclick="setForecastDays(14, this)">14 dní</button>
-      <button onclick="setForecastDays(30, this)">30 dní</button>
-      <button onclick="setForecastDays(90, this)">90 dní</button>
     </div>
     <div id="forecast-table-wrap">
       <div class="loading-msg"><span class="spinner"></span></div>

@@ -20,11 +20,11 @@ DATA_FILE = ROOT / "data" / "history.json"
 ENDPOINT  = "https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret"
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
-DAYS_AHEAD    = 90
-DATE_FROM     = date(2025, 1, 1)   # only this window used for prediction weights
-RECENT_WEIGHT = 3.0
-MID_WEIGHT    = 2.0
-OLD_WEIGHT    = 1.0
+DAYS_AHEAD    = 14                 # only 7-day is reliable; 14 is best-effort
+DATE_FROM     = date(2025, 1, 1)   # older data still shown in history, ignored by model
+FIT_WINDOW    = 21                 # days used to score each weekly lag
+WEEK_LAGS     = [7, 14, 21, 28]    # candidate periods (real rotation super-cycle ≈ 3–4 weeks)
+VARIANT_WINDOW = 120               # days back to collect % variants for a type
 
 
 def today_prague() -> date:
@@ -146,65 +146,107 @@ def fetch_current_code():
 
 # ─── Prediction computation ───────────────────────────────────────────────────
 
-def compute_predictions(history_entries, days_ahead=DAYS_AHEAD):
-    today      = today_prague()
-    cutoff_90  = today - timedelta(days=90)
-    cutoff_180 = today - timedelta(days=180)
+def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
+    """Adaptive weekly-lag model.
 
-    dow_type_weight  = defaultdict(lambda: defaultdict(float))
-    dow_type_variant = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
-    dow_totals       = defaultdict(float)
+    The discount schedule is a rotating super-cycle (≈3–4 weeks) whose regime shifts
+    every month or two, so a fixed day-of-week frequency (old model) just spams the
+    most common type — MEGAVÝPRODEJ. Instead we predict the type seen P days ago,
+    where P is the weekly lag that best matched the schedule over the last FIT_WINDOW
+    days. Candidates from all lags are pooled (fit²-weighted) for the runner-up order;
+    the best lag's pick is always shown first, with its real recent match rate as the
+    displayed confidence. Backtest: ~50 % on the 7-day horizon vs ~30 % for old model.
+    """
+    today = as_of or today_prague()   # as_of lets us replay the model at a past date
 
+    by_date = {}   # date -> raw discount string (latest wins)
     for entry in history_entries:
         try:
             d = date.fromisoformat(entry["date"])
         except Exception:
             continue
-        if d < DATE_FROM:
-            continue
         discount = entry.get("discount", "")
-        if not discount:
+        if discount:
+            by_date[d] = discount
+
+    def tkey_of(d):
+        disc = by_date.get(d)
+        return discount_type_key(disc) if disc else None
+
+    # Score each weekly lag on the recent window (computed once, as of today).
+    lag_fit = {}
+    for P in WEEK_LAGS:
+        ok = tot = 0
+        for d in by_date:
+            if d > today or (today - d).days > FIT_WINDOW:
+                continue
+            src = d - timedelta(days=P)
+            if src in by_date:
+                tot += 1
+                if tkey_of(src) == tkey_of(d):
+                    ok += 1
+        lag_fit[P] = (ok / tot) if tot >= 4 else 0.0
+
+    # Recent % variants per type key, for the sub-line under each candidate.
+    variant_weight = defaultdict(lambda: defaultdict(float))
+    for d, disc in by_date.items():
+        if d > today or (today - d).days > VARIANT_WINDOW:
             continue
-
-        dow    = d.weekday()
-        weight = RECENT_WEIGHT if d >= cutoff_90 else MID_WEIGHT if d >= cutoff_180 else OLD_WEIGHT
-        tkey   = discount_type_key(discount)
-
-        dow_type_weight[dow][tkey]            += weight
-        dow_type_variant[dow][tkey][discount] += weight
-        dow_totals[dow]                        += weight
+        variant_weight[discount_type_key(disc)][disc] += 1.0
 
     predictions = []
     for i in range(0, days_ahead + 1):
         target = today + timedelta(days=i)
-        dow    = target.weekday()
-        total  = dow_totals[dow]
 
-        if total == 0:
-            predictions.append({"date": target.isoformat(), "day_of_week": dow, "candidates": []})
+        votes = defaultdict(float)   # fit²-weighted, drives ranking of runner-ups
+        best  = None                 # ((fit, -P), type_key) — highest fit, shorter lag on tie
+        for P in WEEK_LAGS:
+            src = target - timedelta(days=P)
+            if src > today or src not in by_date:   # source must be observed history
+                continue
+            f  = lag_fit[P]
+            ty = tkey_of(src)
+            votes[ty] += f * f
+            cand = (f, -P)
+            if best is None or cand > best[0]:
+                best = (cand, ty)
+
+        if not votes:
+            predictions.append({"date": target.isoformat(),
+                                 "day_of_week": target.weekday(), "candidates": []})
             continue
 
+        top_type = best[1]
+        # Displayed confidence = the winning lag's real recent match rate (honest, not
+        # the internal vote share). Clamp so a lone lag never reads as certainty.
+        top_prob = min(0.85, max(0.25, best[0][0]))
+        # Runner-ups split the remainder proportional to their fit² votes.
+        rest = [t for t in votes if t != top_type]
+        rest_total = sum(votes[t] for t in rest)
+        prob = {top_type: top_prob}
+        for t in rest:
+            prob[t] = (1.0 - top_prob) * (votes[t] / rest_total) if rest_total else 0.0
+
+        # Committed pick (best lag) always first; runner-ups by descending probability.
+        order = [top_type] + sorted(rest, key=lambda x: -prob[x])
         candidates = []
-        for tkey, tw in sorted(dow_type_weight[dow].items(), key=lambda x: -x[1]):
-            prob = tw / total
-            if prob < 0.03:
-                continue
-            variants_raw = dow_type_variant[dow][tkey]
-            top_variant  = max(variants_raw, key=variants_raw.get)
+        for tkey in order:
+            vw = variant_weight.get(tkey, {})
             variants_list = sorted(
-                [{"discount": k, "weight": round(v, 1)} for k, v in variants_raw.items()],
+                [{"discount": k, "weight": round(v, 1)} for k, v in vw.items()],
                 key=lambda x: -x["weight"]
             )[:4]
+            top_variant = variants_list[0]["discount"] if variants_list else tkey
             candidates.append({
                 "type_key":    tkey,
-                "probability": round(prob, 4),
+                "probability": round(prob[tkey], 4),
                 "top_variant": top_variant,
                 "variants":    variants_list,
             })
 
         predictions.append({
             "date":        target.isoformat(),
-            "day_of_week": dow,
+            "day_of_week": target.weekday(),
             "candidates":  candidates[:6],
         })
 

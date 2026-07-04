@@ -88,13 +88,13 @@ Hodí se na doplnění zmeškané akce nebo opravu špatně naparsovaného textu
 
 ### Predikce
 
-Predikce jsou generovány pro dnešní den i 30 dní dopředu. Základ je **vážená frekvence podle dne v týdnu**:
+Predikce jsou generovány pro dnešní den a **14 dní dopředu** (spolehlivý je jen 7denní horizont, 14denní je orientační; delší výhled se ukázal jako nepředpověditelný). Model je **adaptivní týdenní lag**:
 
-- Posledních 90 dní → váha 3×
-- 90–180 dní → váha 2×
-- Starší → váha 1×
+- Pro každé kandidátní zpoždění P ∈ {7, 14, 21, 28 dní} se za posledních 21 dní změří, jak často „typ před P dny" odpovídal skutečnosti.
+- Predikce = typ slevy z toho zpoždění, které v posledních 21 dnech sedělo nejlépe (reálná superperioda rotace akcí je ≈ 3–4 týdny, ne 1). Model se tak sám přelaďuje, když e-shop změní režim.
+- Zobrazené % u hlavního kandidáta = historická úspěšnost zvoleného zpoždění (ne umělá jistota).
 
-Analýza začíná od **1. 1. 2025** (starší data ze jiné obchodní politiky nejsou do výpočtu zahrnuta, ale zobrazují se v historii).
+**Proč ne den-v-týdnu:** starší model vážil frekvenci podle dne v týdnu na datech od 2025. MEGAVÝPRODEJ tvoří ~46 % historie (v zimě jel režim „MEGA každé 2 dny"), takže model predikoval MEGA v ~86 % případů a měl ~30 % úspěšnost. Týdenní lag drží ~50 % na 7denním horizontu a MEGA predikuje jen ~30 % dní. Data se do modelu berou od **1. 1. 2025**, ale reálně rozhoduje jen posledních ~28 dní; starší se zobrazují jen v historii.
 
 #### Normalizace typů slev
 
