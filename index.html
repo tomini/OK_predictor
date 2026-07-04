@@ -627,8 +627,14 @@ function formatDateCz(isoStr) {
 }
 
 function shortVariant(discount) {
-  const m = discount.match(/(\d+)\s*%/);
-  return m ? m[1] + ' %' : discount;
+  const p = discount.match(/(\d+)\s*%/);
+  if (p) return p[1] + ' %';
+  const k = discount.match(/SLEVA\s+(\d+)\s*KČ/i);   // discount amount
+  if (k) {
+    const thr = discount.match(/NAD\s+(\d+)\s*KČ/i);   // min-purchase threshold
+    return k[1] + ' Kč' + (thr ? ` (nad ${thr[1]} Kč)` : '');
+  }
+  return discount;
 }
 
 function escHtml(str) {
