@@ -1,6 +1,12 @@
 {
-  "last_updated": "2026-08-29T21:26:28.344131Z",
+  "last_updated": "2026-08-29T23:46:26.800199Z",
   "history": [
+    {
+      "date": "2026-08-30",
+      "discount": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+      "code": "30SRP44E",
+      "source": "endpoint"
+    },
     {
       "date": "2026-08-29",
       "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
@@ -3598,65 +3604,6 @@
   ],
   "predictions": [
     {
-      "date": "2026-08-29",
-      "day_of_week": 5,
-      "candidates": [
-        {
-          "type_key": "SLEVA KČ",
-          "probability": 0.7273,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-          "variants": [
-            {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 14.0
-            },
-            {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
-              "weight": 13.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.2304,
-          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
-          "variants": [
-            {
-              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
-              "weight": 9.0
-            },
-            {
-              "discount": "SLEVA 35 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM NOVINKA",
-              "weight": 6.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA % | MEGAVÝPRODEJ",
-          "probability": 0.0423,
-          "top_variant": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
-          "variants": [
-            {
-              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
-              "weight": 11.0
-            },
-            {
-              "discount": "SLEVA 73 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
-              "weight": 10.0
-            },
-            {
-              "discount": "OBŘÍ SLEVA 73 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM MEGAVÝPRODEJ",
-              "weight": 6.0
-            },
-            {
-              "discount": "OBŘÍ SLEVA 62 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM MEGAVÝPRODEJ",
-              "weight": 5.0
-            }
-          ]
-        }
-      ]
-    },
-    {
       "date": "2026-08-30",
       "day_of_week": 6,
       "candidates": [
@@ -3667,7 +3614,7 @@
           "variants": [
             {
               "discount": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
-              "weight": 3.0
+              "weight": 4.0
             },
             {
               "discount": "SLEVA 44 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
@@ -3951,7 +3898,7 @@
             },
             {
               "discount": "SLEVA 35 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM NOVINKA",
-              "weight": 6.0
+              "weight": 5.0
             }
           ]
         },
@@ -3987,7 +3934,7 @@
             },
             {
               "discount": "SLEVA 35 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM NOVINKA",
-              "weight": 6.0
+              "weight": 5.0
             }
           ]
         },
@@ -4051,8 +3998,23 @@
           ]
         },
         {
+          "type_key": "SLEVA % | O TŘETINU LEVNĚJŠÍ",
+          "probability": 0.2455,
+          "top_variant": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+          "variants": [
+            {
+              "discount": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+              "weight": 4.0
+            },
+            {
+              "discount": "SLEVA 44 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+              "weight": 3.0
+            }
+          ]
+        },
+        {
           "type_key": "SLEVA % | MEGAVÝPRODEJ",
-          "probability": 0.2727,
+          "probability": 0.0273,
           "top_variant": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
           "variants": [
             {
@@ -4265,7 +4227,7 @@
             },
             {
               "discount": "SLEVA 35 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM NOVINKA",
-              "weight": 6.0
+              "weight": 5.0
             }
           ]
         }
@@ -4314,11 +4276,70 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-09-13",
+      "day_of_week": 6,
+      "candidates": [
+        {
+          "type_key": "SLEVA KČ",
+          "probability": 0.7273,
+          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "variants": [
+            {
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+              "weight": 14.0
+            },
+            {
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 13.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % | MEGAVÝPRODEJ",
+          "probability": 0.2304,
+          "top_variant": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+          "variants": [
+            {
+              "discount": "SLEVA 62 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "weight": 11.0
+            },
+            {
+              "discount": "SLEVA 73 % NA PRODUKTY SE ŠTÍTKEM MEGAVÝPRODEJ",
+              "weight": 10.0
+            },
+            {
+              "discount": "OBŘÍ SLEVA 73 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM MEGAVÝPRODEJ",
+              "weight": 6.0
+            },
+            {
+              "discount": "OBŘÍ SLEVA 62 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM MEGAVÝPRODEJ",
+              "weight": 5.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % | O TŘETINU LEVNĚJŠÍ",
+          "probability": 0.0423,
+          "top_variant": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+          "variants": [
+            {
+              "discount": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+              "weight": 4.0
+            },
+            {
+              "discount": "SLEVA 44 % NA PRODUKTY OZNAČENÉ ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+              "weight": 3.0
+            }
+          ]
+        }
+      ]
     }
   ],
   "accuracy": {
-    "total": 83,
-    "correct": 51,
+    "total": 84,
+    "correct": 52,
     "log": [
       {
         "date": "2026-06-08",
@@ -4899,6 +4920,13 @@
         "predicted_type": "SLEVA KČ",
         "predicted": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
         "actual": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+        "correct": true
+      },
+      {
+        "date": "2026-08-30",
+        "predicted_type": "SLEVA % | O TŘETINU LEVNĚJŠÍ",
+        "predicted": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
+        "actual": "SLEVA 44 % NA PRODUKTY SE ŠTÍTKEM O TŘETINU LEVNĚJŠÍ",
         "correct": true
       }
     ],
