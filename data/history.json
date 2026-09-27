@@ -5361,6 +5361,10 @@
       {
         "date": "2026-07-05",
         "note": "Změna predikčního enginu: adaptivní týdenní lag (typ podle nejlépe sedícího zpoždění 7/14/21/28 dní) místo frekvence dne v týdnu. Záznamy do 2026-07-04 včetně jsou původním modelem a zůstávají nezměněné; predikce od 2026-07-05 dál používají nový engine. Očekávaná 7denní přesnost ~50 % (dřív ~30 %), konec převahy MEGAVÝPRODEJ. Výhled zkrácen z 90 na 14 dní."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "Rozšíření adaptivního lag modelu: kandidátní zpoždění P z {7,14,21,28 dní} rozšířeno na P z {2..28 dní}. Rotace e-shopu přešla 2026-09-07 na striktní 6denní cyklus (KČ sleva co 2 dny, 3typová % rotace co 6 dní); žádný z původních týdenních lagů se s tím nekryl, 7denní přesnost spadla ze 74 % na 33 % (2026-09). Walk-forward backtest přes celou historii (2025-03 dosud, 566 dní) i po měsících/oknech (od 1.1.2026, 9/6/3/1 měsíc) ukazuje, že rozšíření nikdy nezhoršuje výsledek, jen ho zlepšuje (celkově 73,3 % -> 76,9 %; poslední měsíc 41,9 % -> 67,7 %). Záznamy do 2026-09-27 včetně jsou starým rozsahem lagů; predikce od 2026-09-28 dál používají rozšířený rozsah. Historie (skutečné slevy) a accuracy.log nezměněny."
       }
     ]
   },

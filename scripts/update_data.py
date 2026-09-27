@@ -22,8 +22,15 @@ PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 DAYS_AHEAD    = 14                 # only 7-day is reliable; 14 is best-effort
 DATE_FROM     = date(2025, 1, 1)   # older data still shown in history, ignored by model
-FIT_WINDOW    = 21                 # days used to score each weekly lag
-WEEK_LAGS     = [7, 14, 21, 28]    # candidate periods (real rotation super-cycle ≈ 3–4 weeks)
+FIT_WINDOW    = 21                 # days used to score each candidate lag
+WEEK_LAGS     = list(range(2, 29))  # candidate periods, 2..28 days. Was [7,14,21,28] only;
+                                     # rotation regime shifted to a strict 6-day cycle on
+                                     # 2026-09-07 and none of the weekly-only lags aligned,
+                                     # so accuracy collapsed 74%→33%. Walk-forward backtest
+                                     # over the full history (566 days) shows the wider set
+                                     # never regresses a month (73.3%→76.9% overall) and
+                                     # fixes Sept 2026 (37%→67%); adaptive rescoring each
+                                     # run still just picks whichever lag fits recent data.
 VARIANT_WINDOW = 120               # days back to collect % variants for a type
 
 

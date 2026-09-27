@@ -88,11 +88,13 @@ Hodí se na doplnění zmeškané akce nebo opravu špatně naparsovaného textu
 
 ### Predikce
 
-Predikce jsou generovány pro dnešní den a **14 dní dopředu** (spolehlivý je jen 7denní horizont, 14denní je orientační; delší výhled se ukázal jako nepředpověditelný). Model je **adaptivní týdenní lag**:
+Predikce jsou generovány pro dnešní den a **14 dní dopředu** (spolehlivý je jen 7denní horizont, 14denní je orientační; delší výhled se ukázal jako nepředpověditelný). Model je **adaptivní lag**:
 
-- Pro každé kandidátní zpoždění P ∈ {7, 14, 21, 28 dní} se za posledních 21 dní změří, jak často „typ před P dny" odpovídal skutečnosti.
-- Predikce = typ slevy z toho zpoždění, které v posledních 21 dnech sedělo nejlépe (reálná superperioda rotace akcí je ≈ 3–4 týdny, ne 1). Model se tak sám přelaďuje, když e-shop změní režim.
+- Pro každé kandidátní zpoždění P ∈ {2 .. 28 dní} se za posledních 21 dní změří, jak často „typ před P dny" odpovídal skutečnosti.
+- Predikce = typ slevy z toho zpoždění, které v posledních 21 dnech sedělo nejlépe. Rotace e-shopu mění periodu v čase (viděny byly ~28denní i striktní 6denní režimy) — model se tak sám přelaďuje na aktuální periodu, ať je týdenní, nebo výrazně kratší/delší.
 - Zobrazené % u hlavního kandidáta = historická úspěšnost zvoleného zpoždění (ne umělá jistota).
+
+> Model dřív testoval jen násobky týdne (P ∈ {7,14,21,28}). Když e-shop 7. 9. 2026 přešel na striktní 6denní cyklus, žádný z těchto lagů se s ním nekryl a přesnost spadla ze 74 % na 33 %. Rozšíření na P ∈ {2..28} to opravilo (viz walk-forward backtest v `scripts/backtest.py`).
 
 **Proč ne den-v-týdnu:** starší model vážil frekvenci podle dne v týdnu na datech od 2025. MEGAVÝPRODEJ tvoří ~46 % historie (v zimě jel režim „MEGA každé 2 dny"), takže model predikoval MEGA v ~86 % případů a měl ~30 % úspěšnost. Týdenní lag drží ~50 % na 7denním horizontu a MEGA predikuje jen ~30 % dní. Data se do modelu berou od **1. 1. 2025**, ale reálně rozhoduje jen posledních ~28 dní; starší se zobrazují jen v historii.
 
