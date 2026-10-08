@@ -8,11 +8,13 @@ Filters to DATE_FROM onwards to avoid old policy data skewing predictions.
 import json
 import re
 import sys
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
-from collections import defaultdict
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).parent))
+from update_data import compute_predictions, canonical_discount, DAYS_AHEAD  # single source of truth
 
 ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "data" / "history.json"
@@ -24,31 +26,6 @@ CSV_FILES = [
 # Only use data from this date onwards for predictions
 DATE_FROM = date(2025, 1, 1)
 
-DAYS_AHEAD = 90
-RECENT_WEIGHT = 3.0   # last 90 days
-MID_WEIGHT = 2.0      # 90-180 days
-OLD_WEIGHT = 1.0      # older
-
-
-# ─── Discount type normalization ─────────────────────────────────────────────
-
-def discount_type_key(s):
-    """
-    Map exact discount string → canonical type key for grouping.
-    Groups "OBŘÍ SLEVA 62% MEGAVÝPRODEJ" and "OBŘÍ SLEVA 73% MEGAVÝPRODEJ"
-    into one bucket so probability isn't fragmented by changing percentages.
-    """
-    m = re.search(r'SLEVA \d+\s*%.+ŠTÍTKEM (.+)', s)
-    if m:
-        return f'SLEVA % | {m.group(1).strip()}'
-
-    if re.search(r'SLEVA \d+\s*% NA VŠE', s):
-        return 'SLEVA % NA VŠE SKLADEM'
-
-    if re.search(r'SLEVA \d+ KČ', s):
-        return 'SLEVA KČ'
-
-    return s
 
 
 # ─── Data loading ─────────────────────────────────────────────────────────────
@@ -84,7 +61,7 @@ def load_csv():
     df = pd.concat(all_rows, ignore_index=True)
     df = df.dropna(subset=["Datum", "Akce"], how="all")
     df["Datum"] = df["Datum"].astype(str).str.strip()
-    df["Akce"] = df["Akce"].astype(str).str.strip().str.upper()
+    df["Akce"] = df["Akce"].astype(str).str.strip().str.upper().map(canonical_discount)
     df["Kod"] = df["Kod"].fillna("").astype(str).str.strip().str.upper()
     df["Kod"] = df["Kod"].replace("NAN", "").replace("NONE", "")
     df = df[~df["Datum"].str.contains("nenalezeno", case=False, na=False)]
@@ -97,78 +74,6 @@ def load_csv():
     df = df.drop_duplicates(subset=["Datum", "Akce"])
     df = df.sort_values("Datum")
     return df
-
-
-# ─── Prediction computation ───────────────────────────────────────────────────
-
-def compute_predictions(history_entries, days_ahead=DAYS_AHEAD):
-    today = date.today()
-    cutoff_90  = today - timedelta(days=90)
-    cutoff_180 = today - timedelta(days=180)
-
-    # Count by type_key, tracking exact variants underneath
-    dow_type_weight  = defaultdict(lambda: defaultdict(float))        # dow → type_key → weight
-    dow_type_variant = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))  # dow → type_key → variant → weight
-    dow_totals       = defaultdict(float)
-
-    for entry in history_entries:
-        try:
-            d = date.fromisoformat(entry["date"])
-        except Exception:
-            continue
-        discount = entry.get("discount", "")
-        if not discount:
-            continue
-
-        # Only use entries within our analysis window
-        if d < DATE_FROM:
-            continue
-
-        dow = d.weekday()
-        weight = RECENT_WEIGHT if d >= cutoff_90 else MID_WEIGHT if d >= cutoff_180 else OLD_WEIGHT
-        tkey = discount_type_key(discount)
-
-        dow_type_weight[dow][tkey]           += weight
-        dow_type_variant[dow][tkey][discount] += weight
-        dow_totals[dow]                       += weight
-
-    predictions = []
-    for i in range(0, days_ahead + 1):
-        target = today + timedelta(days=i)
-        dow    = target.weekday()
-        total  = dow_totals[dow]
-
-        if total == 0:
-            predictions.append({"date": target.isoformat(), "day_of_week": dow, "candidates": []})
-            continue
-
-        candidates = []
-        for tkey, tw in sorted(dow_type_weight[dow].items(), key=lambda x: -x[1]):
-            prob = tw / total
-            if prob < 0.03:
-                continue
-
-            variants_raw = dow_type_variant[dow][tkey]
-            top_variant  = max(variants_raw, key=variants_raw.get)
-            variants_list = sorted(
-                [{"discount": k, "weight": round(v, 1)} for k, v in variants_raw.items()],
-                key=lambda x: -x["weight"]
-            )[:4]
-
-            candidates.append({
-                "type_key":    tkey,
-                "probability": round(prob, 4),
-                "top_variant": top_variant,
-                "variants":    variants_list,
-            })
-
-        predictions.append({
-            "date":        target.isoformat(),
-            "day_of_week": dow,
-            "candidates":  candidates[:6],
-        })
-
-    return predictions
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
@@ -209,6 +114,7 @@ def main():
 
     # Sort newest first for UI
     history.sort(key=lambda x: x["date"], reverse=True)
+    predictions = compute_predictions(history)
 
     data = {
         "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),

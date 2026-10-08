@@ -1,4 +1,4 @@
-# OdKarla – Prediktor slev
+# OdKarla: Prediktor slev
 
 Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akce e-shopu [OdKarla.cz](https://www.odkarla.cz) na základě historických dat. Data se automaticky doplňují přes GitHub Actions.
 
@@ -16,7 +16,7 @@ Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akc
   - [Sledování přesnosti](#sledování-přesnosti)
   - [Sběr historických dat (UserScript)](#sběr-historických-dat-userscript)
   - [Jednorázový import CSV](#jednorázový-import-csv)
-- [Workflow – běžné situace](#workflow--běžné-situace)
+- [Workflow: běžné situace](#workflow-běžné-situace)
   - [Normální provoz (nic nedělat)](#normální-provoz-nic-nedělat)
   - [Dnešní kód nebyl zachycen](#dnešní-kód-nebyl-zachycen-okno-zmeškat--výpadek)
   - [Oprava existujícího záznamu](#oprava-existujícího-záznamu-špatný-popis-nebo-kód)
@@ -24,7 +24,6 @@ Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akc
   - [Sběr nových historických dat přes UserScript](#sběr-nových-historických-dat-přes-userscript)
   - [Predikce jsou zkreslené / chci přepočítat](#predikce-jsou-zkreslené--chci-přepočítat)
   - [Actions přestaly fungovat](#actions-přestaly-fungovat--repozitář-byl-přenesen)
-- [Nasazení](#nasazení)
 - [Struktura repozitáře](#struktura-repozitáře)
 
 ---
@@ -33,15 +32,15 @@ Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akc
 
 ### Datový model
 
-Veškerá data jsou uložena v jednom souboru `data/history.json`, který GitHub Actions commituje přímo do repozitáře. GitHub Pages ho pak servírují jako statický soubor — žádný backend, žádná databáze.
+Veškerá data jsou uložena v jednom souboru `data/history.json`, který GitHub Actions commituje přímo do repozitáře. GitHub Pages ho pak servírují jako statický soubor. Backend ani databáze v projektu nejsou.
 
 Struktura souboru:
 ```
 {
   "last_updated": "2026-06-07T10:00:00Z",
-  "history": [{ "date", "discount", "code", "source" }, ...],
+  "history": [{ "date", "discount", "code", "source", "raw_discount"? }, ...],
   "predictions": [{ "date", "day_of_week", "candidates": [{ "type_key", "probability", "top_variant", "variants" }] }, ...],
-  "accuracy": { "total", "correct", "log": [...] }
+  "accuracy": { "total", "correct", "log": [...], "changelog": [...] }
 }
 ```
 
@@ -57,10 +56,10 @@ https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret
 ```
 
 Odpověď obsahuje pole `data.isSecretCode`:
-- **`true`** — právě běží denní tajná akce. Skript naparsuje HTML (`lp-special-action-text-heading`) a extrahuje popis slevy a kód.
-- **`false`** — aktivní je jen permanentní kód (např. `SLE25NVK`). Skript nic nezapisuje.
+- **`true`**: právě běží denní tajná akce. Skript naparsuje HTML (`lp-special-action-text-heading`) a extrahuje popis slevy a kód.
+- **`false`**: aktivní je jen permanentní kód (např. `SLE25NVK`). Skript nic nezapisuje.
 
-Text slevy z endpointu může obsahovat prefix „TAJNÝ KÓD JEN PRO VÁS." — skript ho automaticky ořízne, aby názvy odpovídaly stylu historických dat z FB.
+Text slevy z endpointu může obsahovat prefix „TAJNÝ KÓD JEN PRO VÁS.". Skript ho ořízne, aby názvy odpovídaly stylu historických dat z FB.
 
 Pokud byl pro dnešní datum záznam již uložen, skript ho nepřepíše (pouze doplní kód, pokud chybí). Při nové položce se automaticky vyhodnotí přesnost dřívější predikce.
 
@@ -88,15 +87,24 @@ Hodí se na doplnění zmeškané akce nebo opravu špatně naparsovaného textu
 
 ### Predikce
 
-Predikce jsou generovány pro dnešní den a **14 dní dopředu** (spolehlivý je jen 7denní horizont, 14denní je orientační; delší výhled se ukázal jako nepředpověditelný). Model je **adaptivní lag**:
+Skript predikuje dnešní den a 14 dní dopředu. Za 7 dní je model použitelný, 14denní výhled je orientační.
 
-- Pro každé kandidátní zpoždění P ∈ {2 .. 28 dní} se za posledních 21 dní změří, jak často „typ před P dny" odpovídal skutečnosti.
-- Predikce = typ slevy z toho zpoždění, které v posledních 21 dnech sedělo nejlépe. Rotace e-shopu mění periodu v čase (viděny byly ~28denní i striktní 6denní režimy) — model se tak sám přelaďuje na aktuální periodu, ať je týdenní, nebo výrazně kratší/delší.
-- Zobrazené % u hlavního kandidáta = historická úspěšnost zvoleného zpoždění (ne umělá jistota).
+Model je vážené hlasování lagů:
 
-> Model dřív testoval jen násobky týdne (P ∈ {7,14,21,28}). Když e-shop 7. 9. 2026 přešel na striktní 6denní cyklus, žádný z těchto lagů se s ním nekryl a přesnost spadla ze 74 % na 33 %. Rozšíření na P ∈ {2..28} to opravilo (viz walk-forward backtest v `scripts/backtest.py`).
+- Pro každé zpoždění P od 2 do 28 dní se za posledních 28 dní spočítá, jak často typ slevy před P dny odpovídal typu v daný den. Dny z poslední doby mají větší váhu (každý den zpět se váha násobí 0,9).
+- Každé zpoždění hlasuje pro typ, který měl cílový den před P dny. Váha hlasu je skóre zpoždění na čtvrtou. Vyhrává typ s nejvíc hlasy.
+- U dnů za posledním známým dnem se jako zdroj použije dřívější predikce. Hlasují tak i zpoždění kratší než vzdálenost do cílového dne.
+- Zobrazené procento je podíl hlasů daného typu. V backtestu vycházelo průměrně 67 %, skutečná trefa byla 68 až 76 % podle horizontu.
 
-**Proč ne den-v-týdnu:** starší model vážil frekvenci podle dne v týdnu na datech od 2025. MEGAVÝPRODEJ tvoří ~46 % historie (v zimě jel režim „MEGA každé 2 dny"), takže model predikoval MEGA v ~86 % případů a měl ~30 % úspěšnost. Týdenní lag drží ~50 % na 7denním horizontu a MEGA predikuje jen ~30 % dní. Data se do modelu berou od **1. 1. 2025**, ale reálně rozhoduje jen posledních ~28 dní; starší se zobrazují jen v historii.
+E-shop mění periodu rotace každý měsíc nebo dva (14denní, 28denní a od 7. 9. 2026 6denní cyklus), takže model skóre přepočítává při každém běhu.
+
+Walk-forward backtest od března 2025 (horizonty 1, 2, 3 a 7 dní) dal 73,6 %. Předchozí model, který bral jedno nejlepší zpoždění z posledních 21 dní, měl 70,1 %. Za poslední 3 měsíce je to 75,3 % proti 70,2 %.
+
+Posun rotace o jeden den, jako 6. 10. 2026, model nepředpoví. Po něm potřebuje několik dní, než skóre naběhne na novou fázi.
+
+Slovenské znění (`ZĽAVA 35 % NA PRODUKTY FIRST MINUTE`, jednou 7. 9. 2026) převede `canonical_discount()` na české. Nevznikne kvůli němu nový typ a neobjeví se v predikci. Původní text zůstává v poli `raw_discount`.
+
+**Proč ne den-v-týdnu:** starší model vážil frekvenci podle dne v týdnu na datech od 2025. MEGAVÝPRODEJ tvoří asi 46 % historie (v zimě jel režim „MEGA každé 2 dny"), takže model predikoval MEGA v 86 % dní a trefil 30 %. Lag model predikuje MEGA asi ve 30 % dní. Model bere data od 1. 1. 2025, ale rozhoduje jen posledních 28 dní. Starší záznamy se zobrazují jen v historii.
 
 #### Normalizace typů slev
 
@@ -109,7 +117,7 @@ Různé procentní výše stejné akce (např. `OBŘÍ SLEVA 62 %...` a `OBŘÍ 
 | `SLEVA N KČ` | `SLEVA KČ` |
 | ostatní | původní text |
 
-Predikční karta zobrazuje klíč (`SLEVA % | MEGAVÝPRODEJ`) s podřádkem procentních variant (`62 % · 73 % · 85 %`) — to jsou všechna procenta, se kterými se daný typ v historii vyskytl, seřazená od nejčastějšího. Predikce říká **jaký typ akce** s jakou pravděpodobností nastane, nikoliv přesné procento.
+Predikční karta zobrazuje klíč (`SLEVA % | MEGAVÝPRODEJ`) s podřádkem procentních variant (`62 % · 73 % · 85 %`). Jsou to procenta, se kterými se daný typ vyskytl v posledních 120 dnech, od nejčastějšího. Predikce říká **jaký typ akce** s jakou pravděpodobností nastane, nikoliv přesné procento.
 
 ---
 
@@ -144,11 +152,11 @@ python scripts/convert_csv.py
 ```
 
 CSV formát: `Sleva;Datum;Kód` (oddělovač `;`, kódování UTF-8 s BOM, datum `DD.MM.YYYY`).
-Chronologické pořadí řádků nehraje roli — skript řadí automaticky.
+Chronologické pořadí řádků nehraje roli, skript řadí automaticky.
 
 ---
 
-## Workflow – běžné situace
+## Workflow: běžné situace
 
 ### Normální provoz (nic nedělat)
 
@@ -180,13 +188,13 @@ Kód přestal být aktivní dřív než cron dobíhal, nebo Actions selhaly.
 
 ### Oprava existujícího záznamu (špatný popis nebo kód)
 
-Workflow_dispatch s **stejným datem** jako opravovaný záznam — skript existující záznam přepíše.
+Spusť workflow se stejným datem, jaké má opravovaný záznam. Skript existující záznam přepíše.
 
 1. Actions → Run workflow
 2. Vyplň `manual_date` + správný `manual_discount` + správný `manual_code`
 3. Spusť.
 
-> Pokud opravuješ jen kód a popis je správný, musíš vyplnit i popis — jinak ho skript přepíše prázdným.
+> Pokud opravuješ jen kód a popis je správný, musíš vyplnit i popis, jinak ho skript přepíše prázdným.
 
 ---
 
@@ -195,7 +203,7 @@ Workflow_dispatch s **stejným datem** jako opravovaný záznam — skript exist
 Workflow_dispatch je pro hromadné doplňování nepraktický (jeden záznam za spuštění). Místo toho:
 
 1. Otevři `OdKarla_2025-Q2_26.csv` v editoru nebo Excelu.
-2. Přidej řádky ve formátu `Sleva;DD.MM.YYYY;KOD` — chronologické pořadí nehraje roli, skript řadí sám.
+2. Přidej řádky ve formátu `Sleva;DD.MM.YYYY;KOD`. Chronologické pořadí nehraje roli, skript řadí sám.
 3. Ulož jako UTF-8 s BOM (v Excelu: Uložit jako → CSV UTF-8 s kusovníkem).
 4. Lokálně spusť:
    ```bash
@@ -208,7 +216,7 @@ Workflow_dispatch je pro hromadné doplňování nepraktický (jeden záznam za 
    git push
    ```
 
-> Accuracy log se při reimportu **zachová** — existující vyhodnocení predikcí se nepřepíší.
+> Accuracy log se při reimportu zachová. Existující vyhodnocení predikcí se nepřepíšou.
 
 ---
 
@@ -217,8 +225,8 @@ Workflow_dispatch je pro hromadné doplňování nepraktický (jeden záznam za 
 Pokud chceš doplnit starší záznamy ze FB skupiny, které v CSV chybí:
 
 1. Nainstaluj UserScript `FB OdKarla Extractor (Průběžný)-2.0.txt` do Tampermonkey.
-2. Otevři FB skupinu OdKarla, procházej příspěvky — skript průběžně sbírá.
-3. Na konci klikni na tlačítko v UI — zkopíruje tab-separovaný výstup (`Sleva\tDatum\tKód`).
+2. Otevři FB skupinu OdKarla, procházej příspěvky. Skript sbírá data průběžně.
+3. Na konci klikni na tlačítko v UI, zkopíruje se tab-separovaný výstup (`Sleva\tDatum\tKód`).
 4. Vlož do CSV (přidej řádky do `OdKarla_2025-Q2_26.csv`), pak viz backfill postup výše.
 
 ---
@@ -238,17 +246,6 @@ Zkontroluj:
 
 ---
 
-## Nasazení
-
-1. Forkni / pushni repozitář na GitHub (privátní nebo veřejný).
-2. **Settings → Pages** — nastav Source na **GitHub Actions** (ne "Deploy from a branch").
-3. **Settings → Actions → General** — povol `Read and write permissions`.
-4. Spusť `convert_csv.py` lokálně, výsledný `data/history.json` commituj a pushni.
-5. Ručně spusť workflow **Deploy Pages** jednou (Actions → Deploy Pages → Run workflow) — aktivuje GitHub Pages environment.
-6. Od té doby: Pages se rebuilduje jen při změně `index.html`, hodinové datové commity rebuild nespouštějí.
-
----
-
 ## Struktura repozitáře
 
 ```
@@ -256,7 +253,7 @@ Zkontroluj:
 ├── data/
 │   └── history.json            # živá databáze (generováno)
 ├── scripts/
-│   ├── convert_csv.py          # jednorázový import CSV
+│   ├── convert_csv.py          # import CSV, model bere z update_data.py
 │   ├── update_data.py          # hodinový runner (Actions)
 │   └── requirements.txt
 ├── .github/workflows/

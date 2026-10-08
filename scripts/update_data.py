@@ -22,15 +22,15 @@ PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 DAYS_AHEAD    = 14                 # only 7-day is reliable; 14 is best-effort
 DATE_FROM     = date(2025, 1, 1)   # older data still shown in history, ignored by model
-FIT_WINDOW    = 21                 # days used to score each candidate lag
-WEEK_LAGS     = list(range(2, 29))  # candidate periods, 2..28 days. Was [7,14,21,28] only;
-                                     # rotation regime shifted to a strict 6-day cycle on
-                                     # 2026-09-07 and none of the weekly-only lags aligned,
-                                     # so accuracy collapsed 74%→33%. Walk-forward backtest
-                                     # over the full history (566 days) shows the wider set
-                                     # never regresses a month (73.3%→76.9% overall) and
-                                     # fixes Sept 2026 (37%→67%); adaptive rescoring each
-                                     # run still just picks whichever lag fits recent data.
+FIT_WINDOW    = 28                 # days used to score each candidate lag
+FIT_DECAY     = 0.9                # per-day weight decay when scoring a lag (newest day = 1.0)
+VOTE_POWER    = 4                  # each lag votes with weight fit**VOTE_POWER
+LAGS          = list(range(2, 29))  # candidate periods in days. Weekly-only lags {7,14,21,28}
+                                    # missed the strict 6-day cycle that began 2026-09-07.
+                                    # Walk-forward backtest (2025-03 .. 2026-10, horizons 1/2/3/7):
+                                    # best single lag W21 70.1 % -> recency-weighted vote
+                                    # W28 d0.9 pw4 73.6 % (last 3 months 70.2 -> 75.3 %).
+PROB_MIN, PROB_MAX = 0.25, 0.95    # clamp of displayed top probability
 VARIANT_WINDOW = 120               # days back to collect % variants for a type
 
 
@@ -40,7 +40,18 @@ def today_prague() -> date:
 
 # ─── Discount type normalization ─────────────────────────────────────────────
 
+def canonical_discount(s):
+    """Czech wording of a discount string. The shop once served the Slovak variant
+    ("ZĽAVA 35 % NA PRODUKTY FIRST MINUTE", 2026-09-07); fold it into the Czech form so
+    it neither becomes its own type nor leaks into the displayed variants."""
+    s = re.sub(r'\bZ[ĽL]AVA\b', 'SLEVA', s)
+    # Label without "SE ŠTÍTKEM" / "OZNAČENÉ ŠTÍTKEM" -> add it
+    s = re.sub(r'(NA PRODUKTY) (?!.*ŠTÍTKEM)(\S.*)$', r'\1 SE ŠTÍTKEM \2', s)
+    return s
+
+
 def discount_type_key(s):
+    s = canonical_discount(s)
     m = re.search(r'SLEVA \d+\s*%.+ŠTÍTKEM (.+)', s)
     if m:
         return f'SLEVA % | {m.group(1).strip()}'
@@ -67,7 +78,7 @@ def notify_discord(message: str):
 def normalize(text):
     if not text:
         return ""
-    return re.sub(r"\s+", " ", text.strip().upper())
+    return canonical_discount(re.sub(r"\s+", " ", text.strip().upper()))
 
 
 # ─── Data I/O ─────────────────────────────────────────────────────────────────
@@ -154,15 +165,16 @@ def fetch_current_code():
 # ─── Prediction computation ───────────────────────────────────────────────────
 
 def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
-    """Adaptive weekly-lag model.
+    """Recency-weighted lag vote.
 
-    The discount schedule is a rotating super-cycle (≈3–4 weeks) whose regime shifts
-    every month or two, so a fixed day-of-week frequency (old model) just spams the
-    most common type — MEGAVÝPRODEJ. Instead we predict the type seen P days ago,
-    where P is the weekly lag that best matched the schedule over the last FIT_WINDOW
-    days. Candidates from all lags are pooled (fit²-weighted) for the runner-up order;
-    the best lag's pick is always shown first, with its real recent match rate as the
-    displayed confidence. Backtest: ~50 % on the 7-day horizon vs ~30 % for old model.
+    The schedule is a rotating cycle whose period changes every month or two, so each
+    candidate lag P (2..28 days) is scored on how often "type P days ago" matched the type
+    on the day over the last FIT_WINDOW days, with newer days counting more (FIT_DECAY).
+    The prediction for a day is the type with the highest fit**VOTE_POWER-weighted vote
+    across all lags (ties go to the shorter lag). Days beyond the last observed one use
+    earlier predictions as lag sources (rollout), so a lag shorter than the horizon still
+    votes. Displayed probability = the top type's vote share (backtest: mean 67 % shown vs
+    68-76 % hit rate for horizons 1-14, i.e. roughly calibrated), clamped to PROB_MIN..MAX.
     """
     today = as_of or today_prague()   # as_of lets us replay the model at a past date
 
@@ -173,69 +185,62 @@ def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
         except Exception:
             continue
         discount = entry.get("discount", "")
-        if discount:
-            by_date[d] = discount
+        if discount and DATE_FROM <= d <= today:
+            by_date[d] = canonical_discount(discount)
 
-    def tkey_of(d):
-        disc = by_date.get(d)
-        return discount_type_key(disc) if disc else None
+    tkeys = {d: discount_type_key(disc) for d, disc in by_date.items()}
 
-    # Score each weekly lag on the recent window (computed once, as of today).
+    # Fit of each lag as of today: decayed share of recent days whose type matched the
+    # type P days earlier. Needs >= 4 comparable days, else the lag does not vote.
     lag_fit = {}
-    for P in WEEK_LAGS:
-        ok = tot = 0
-        for d in by_date:
-            if d > today or (today - d).days > FIT_WINDOW:
-                continue
+    for P in LAGS:
+        num = den = 0.0
+        n = 0
+        for k in range(FIT_WINDOW):
+            d = today - timedelta(days=k)
             src = d - timedelta(days=P)
-            if src in by_date:
-                tot += 1
-                if tkey_of(src) == tkey_of(d):
-                    ok += 1
-        lag_fit[P] = (ok / tot) if tot >= 4 else 0.0
+            if d in tkeys and src in tkeys:
+                w = FIT_DECAY ** k
+                den += w
+                n += 1
+                if tkeys[d] == tkeys[src]:
+                    num += w
+        lag_fit[P] = (num / den) if n >= 4 else 0.0
 
     # Recent % variants per type key, for the sub-line under each candidate.
     variant_weight = defaultdict(lambda: defaultdict(float))
     for d, disc in by_date.items():
-        if d > today or (today - d).days > VARIANT_WINDOW:
+        if (today - d).days > VARIANT_WINDOW:
             continue
-        variant_weight[discount_type_key(disc)][disc] += 1.0
+        variant_weight[tkeys[d]][disc] += 1.0
 
+    series = dict(tkeys)   # observed types; rolled-out predictions are added as we go
     predictions = []
     for i in range(0, days_ahead + 1):
         target = today + timedelta(days=i)
 
-        votes = defaultdict(float)   # fit²-weighted, drives ranking of runner-ups
-        best  = None                 # ((fit, -P), type_key) — highest fit, shorter lag on tie
-        for P in WEEK_LAGS:
-            src = target - timedelta(days=P)
-            if src > today or src not in by_date:   # source must be observed history
+        votes = defaultdict(float)
+        for P in LAGS:                       # ascending: shorter lag wins vote ties
+            ty = series.get(target - timedelta(days=P))
+            if ty is None:
                 continue
-            f  = lag_fit[P]
-            ty = tkey_of(src)
-            votes[ty] += f * f
-            cand = (f, -P)
-            if best is None or cand > best[0]:
-                best = (cand, ty)
+            votes[ty] += lag_fit[P] ** VOTE_POWER
 
-        if not votes:
+        total = sum(votes.values())
+        if not votes or total <= 0:
             predictions.append({"date": target.isoformat(),
                                  "day_of_week": target.weekday(), "candidates": []})
             continue
 
-        top_type = best[1]
-        # Displayed confidence = the winning lag's real recent match rate (honest, not
-        # the internal vote share). Clamp so a lone lag never reads as certainty.
-        top_prob = min(0.85, max(0.25, best[0][0]))
-        # Runner-ups split the remainder proportional to their fit² votes.
-        rest = [t for t in votes if t != top_type]
-        rest_total = sum(votes[t] for t in rest)
-        prob = {top_type: top_prob}
-        for t in rest:
-            prob[t] = (1.0 - top_prob) * (votes[t] / rest_total) if rest_total else 0.0
+        order = sorted(votes, key=lambda t: -votes[t])   # stable: insertion (short lag) first
+        if target not in tkeys:
+            series[target] = order[0]
+        prob = {t: votes[t] / total for t in order}
+        prob[order[0]] = min(PROB_MAX, max(PROB_MIN, prob[order[0]]))
+        rest_total = sum(votes[t] for t in order[1:])
+        for t in order[1:]:
+            prob[t] = (1.0 - prob[order[0]]) * (votes[t] / rest_total) if rest_total else 0.0
 
-        # Committed pick (best lag) always first; runner-ups by descending probability.
-        order = [top_type] + sorted(rest, key=lambda x: -prob[x])
         candidates = []
         for tkey in order:
             vw = variant_weight.get(tkey, {})
