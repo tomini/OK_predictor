@@ -1,352 +1,189 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='none'/%3E%3Ctext x='47%25' y='53%25' font-family='Arial, Helvetica, sans-serif' font-weight='bold' font-size='15' text-anchor='middle' dominant-baseline='central'%3E%3Ctspan fill='%2322c55e' stroke='%23000000' stroke-width='1' stroke-linejoin='round'%3EOK%3C/tspan%3E%3Ctspan fill='%23ffffff' stroke='%23000000' stroke-width='1' stroke-linejoin='round' alignment-baseline='central'%3Ep%3C/tspan%3E%3C/text%3E%3C/svg%3E">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OdKarla – Prediktor slev</title>
-  <style>
-    :root {
-      --bg: #0f0f13;
-      --surface: #1a1a24;
-      --surface2: #22222f;
-      --border: #2e2e3e;
-      --accent: #7c6af7;
-      --accent2: #a78bfa;
-      --green: #34d399;
-      --red: #f87171;
-      --yellow: #fbbf24;
-      --text: #e2e2f0;
-      --muted: #7070a0;
-      --radius: 12px;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdKarla – Prediktor slev</title>
+<style>
+  :root {
+    /* palette taken from odkarla.cz */
+    --bg: #161314; --panel: #231f20; --panel2: #2e292a; --line: #3d3738; --text: #f1f1f1; --muted: #a39d9e;
+    --accent: #33cc33; --cyan: #23c7ff; --yellow: #ffcd00; --green: #33cc33; --red: #e84b42;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 1.15rem; letter-spacing: .02em; } h1 span { color: var(--accent); }
+  #updated { color: var(--muted); font-size: .8rem; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  .top { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .top { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .panel + .panel, details.panel + details.panel { margin-top: 16px; }
+  .top > .panel { margin-top: 0; }
+  .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+  /* today */
+  .today .what { font-size: 1.35rem; font-weight: 700; line-height: 1.25; margin-bottom: 14px; }
+  .today .code { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 10px 16px; }
+  .today .code b { font: 700 1.7rem ui-monospace, Consolas, monospace; letter-spacing: .14em; color: var(--cyan); }
+  .btn { border: 0; background: var(--accent); color: #0f2a0f; font: inherit; font-size: .82rem; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .sub { color: var(--muted); font-size: .85rem; margin-top: 10px; }
+  .hit { color: var(--green); font-weight: 600; } .miss { color: var(--red); font-weight: 600; }
 
-    a { color: var(--accent2); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+  /* accuracy panel */
+  .ring-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  .ring { --v: 0; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; flex: none;
+          background: conic-gradient(var(--accent) calc(var(--v) * 1%), var(--panel2) 0); }
+  .ring span { width: 94px; height: 94px; border-radius: 50%; background: var(--panel); display: grid; place-items: center; font-weight: 700; font-size: 1.6rem; }
+  .ring-row dl { display: grid; grid-template-columns: auto auto; gap: 6px 18px; font-size: 1.05rem; }
+  .ring-row dt { color: var(--muted); } .ring-row dd { font-weight: 700; text-align: right; font-size: 1.15rem; }
+  .ring-row .sq { margin-left: auto; }
+  .dots { display: grid; grid-template-columns: repeat(7, 22px); gap: 6px; }
+  .dots i { width: 22px; height: 22px; border-radius: 5px; background: var(--green); }
+  .dots i.x { background: var(--red); }
+  .dots-cap { font-size: .72rem; color: var(--muted); margin-top: 8px; max-width: 214px; }
+  /* phones: 14 x 2 instead of 7 x 4, squares shrink to fit the width */
+  @media (max-width: 560px) {
+    .ring-row .sq { margin-left: 0; width: 100%; }
+    .dots { grid-template-columns: repeat(14, 1fr); gap: 4px; }
+    .dots i { width: auto; aspect-ratio: 1; border-radius: 3px; }
+    .dots-cap { max-width: none; }
+  }
+  .scope { display: inline-flex; margin-bottom: 14px; }
+  .scope button { background: none; border: 1px solid var(--line); color: var(--muted); padding: 4px 12px; font: inherit; font-size: .78rem; cursor: pointer; }
+  .scope button:first-child { border-radius: 8px 0 0 8px; } .scope button:last-child { border-radius: 0 8px 8px 0; border-left: 0; }
+  .scope button.on { background: var(--panel2); color: var(--text); }
 
-    /* ── Layout ── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent2); }
-    #last-updated { font-size: 0.75rem; color: var(--muted); }
+  /* forecast strip */
+  .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .head .label { margin: 0; }
+  .seg button { background: none; border: 1px solid var(--line); color: var(--muted); padding: 4px 12px; font: inherit; font-size: .8rem; cursor: pointer; }
+  .seg button:first-child { border-radius: 8px 0 0 8px; } .seg button:last-child { border-radius: 0 8px 8px 0; border-left: 0; }
+  .seg button.on { background: var(--panel2); color: var(--text); }
+  .strip { display: grid; gap: 10px; }
 
-    nav {
-      display: flex;
-      gap: 4px;
-      background: var(--surface);
-      padding: 0 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    nav button {
-      background: none;
-      border: none;
-      color: var(--muted);
-      padding: 12px 16px;
-      cursor: pointer;
-      font-size: 0.875rem;
-      border-bottom: 2px solid transparent;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    nav button.active { color: var(--accent2); border-bottom-color: var(--accent2); }
-    nav button:hover { color: var(--text); }
+  /* accent: ::before is the gradient card shape clipped to the left 14px, ::after paints the panel
+     over all but the left 5px - the stripe curves around the corners and tapers off, and nothing
+     of the gradient exists near the right edge, so no fringe shows there */
+  .day { position: relative; background: var(--panel2); border-radius: 10px; }
+  .day::before, .day::after { content: ''; position: absolute; inset: 0; border-radius: 10px; z-index: 0; }
+  .day::before { background: linear-gradient(to bottom, var(--c, var(--muted)), var(--c2, var(--muted))); clip-path: inset(0 calc(100% - 14px) 0 0); }
+  .day::after { inset: 0 0 0 5px; background: var(--panel2); }
+  .day > * { position: relative; z-index: 1; }
+  /* today: glow behind the card - green = hit, red = miss, grey-white = outcome not known yet */
+  .day.today { --glow: #d9d6d6; box-shadow: 0 0 12px 0 color-mix(in srgb, var(--glow) 60%, transparent); }
+  .day.today.glow-hit  { --glow: var(--green); }
+  .day.today.glow-miss { --glow: var(--red); }
+  .day .dt b { font-weight: 700; color: var(--text); }
+  .day .dt { color: var(--muted); font-size: .78rem; }
+  .day .nm { font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+  .day .vals { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .day .meter { display: flex; align-items: center; gap: 10px; }
+  .day .bar { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .day .bar i { display: block; height: 100%; background: linear-gradient(to right, var(--c, var(--accent)), var(--c2, var(--accent))); border-radius: 4px; }
+  .day .pc { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--c2, var(--text)); }
+  .day .alts { color: var(--muted); font-size: .78rem; }
+  .day .alts div + div { margin-top: 3px; }
+  .day .alts b { color: var(--text); font-weight: 600; opacity: .8; }
 
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
+  /* 7 days: one wide row per day, winner large on the left, alternatives quiet on the right */
+  .day.row { display: grid; grid-template-columns: 120px minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; align-items: center; padding: 16px 20px; }
+  .day.row .dt b { display: block; font-size: 1.05rem; }
+  .day.row .nm { font-size: 1.15rem; }
+  .day.row .meter { margin-top: 10px; }
+  .day.row .pc { font-size: 1.4rem; min-width: 3em; text-align: right; }
+  .day.row .alts { border-left: 1px solid var(--line); padding-left: 20px; }
+  .day.row .alts::before { content: 'Další možnosti'; display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+  @media (max-width: 760px) {
+    .day.row { grid-template-columns: 1fr; gap: 8px; }
+    .day.row .alts { border-left: 0; padding-left: 0; }
+  }
 
-    section { display: none; }
-    section.active { display: block; }
+  /* 14 days: same rows in two columns (days 1-7 left, 8-14 right) */
+  .strip.cols2 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; }
+  .strip.cols2 .day.row { grid-template-columns: 90px minmax(0, 1fr); gap: 6px 16px; padding: 14px 16px; align-content: center; }
+  .strip.cols2 .day.row.has-alts .dt { grid-row: 1 / span 2; align-self: center; }
+  .strip.cols2 .day.row .nm { font-size: 1rem; }
+  .strip.cols2 .day.row .pc { font-size: 1.2rem; }
+  .strip.cols2 .day.row .alts { grid-column: 2; border-left: 0; padding-left: 0; }
+  @media (max-width: 900px) { .strip.cols2 { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; } }
 
-    h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase;
-         letter-spacing: 0.08em; margin-bottom: 16px; }
-
-    /* ── Today hero ── */
-    #today-card {
-      background: linear-gradient(135deg, #1a1a35, #1e1030);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 28px 32px;
-      margin-bottom: 28px;
-      text-align: center;
-    }
-    #today-card .label { font-size: 0.75rem; color: var(--accent2); text-transform: uppercase;
-                          letter-spacing: 0.1em; margin-bottom: 8px; }
-    #today-card .discount { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
-    #today-card .code-wrap { display: inline-flex; align-items: center; gap: 10px;
-                              background: var(--surface2); border: 1px solid var(--border);
-                              border-radius: 8px; padding: 10px 18px; }
-    #today-card .code { font-family: monospace; font-size: 1.6rem; font-weight: 700;
-                         letter-spacing: 0.15em; color: var(--yellow); }
-    #copy-btn {
-      background: var(--accent); border: none; color: #fff; border-radius: 6px;
-      padding: 6px 12px; cursor: pointer; font-size: 0.8rem; transition: opacity 0.15s;
-    }
-    #copy-btn:hover { opacity: 0.85; }
-    #today-card .no-code { color: var(--muted); font-size: 0.9rem; font-style: italic; }
-
-    /* ── Prediction cards ── */
-    .pred-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-    .pred-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-    }
-    .pred-card .date-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
-                              letter-spacing: 0.06em; }
-    .pred-card .dow { font-size: 0.85rem; font-weight: 600; color: var(--accent2); margin-bottom: 10px; }
-    .pred-card .candidate { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
-    .pred-card .prob-bar-wrap { flex: 1; }
-    .pred-card .candidate-name { font-size: 0.78rem; line-height: 1.3; margin-bottom: 3px; }
-    .pred-card .prob-bar { height: 4px; background: var(--border); border-radius: 2px; }
-    .pred-card .prob-fill { height: 100%; border-radius: 2px; background: var(--accent); }
-    .pred-card .prob-pct { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
-    .pred-card.top-pred { border-color: var(--accent); }
-
-    /* ── Extended forecast ── */
-    .forecast-controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .forecast-controls button {
-      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-      padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem;
-      transition: background 0.15s;
-    }
-    .forecast-controls button.active { background: var(--accent); border-color: var(--accent); }
-    .forecast-controls button:hover:not(.active) { background: var(--surface); }
-
-    .forecast-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .forecast-table th {
-      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
-      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
-    }
-    .forecast-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    .forecast-table tr:hover td { background: var(--surface2); }
-    .forecast-table .prob-chip {
-      display: inline-block; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px; padding: 2px 7px; font-size: 0.72rem; color: var(--accent2);
-      margin-right: 4px; margin-bottom: 2px;
-    }
-    .forecast-table .prob-chip.top { background: #1e1035; border-color: var(--accent); color: var(--accent2); }
-
-    /* ── History ── */
-    .history-controls {
-      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
-    }
-    #search-input {
-      flex: 1; min-width: 200px; background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;
-    }
-    #search-input::placeholder { color: var(--muted); }
-    #search-input:focus { outline: none; border-color: var(--accent); }
-
-    .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .history-table th {
-      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
-      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
-      position: sticky; top: 0; background: var(--bg);
-    }
-    .history-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    .history-table tr:hover td { background: var(--surface2); }
-    .code-chip {
-      font-family: monospace; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px; padding: 2px 6px; font-size: 0.8rem; color: var(--yellow);
-    }
-    .source-chip {
-      font-size: 0.7rem; border-radius: 4px; padding: 2px 6px;
-      background: var(--surface2); color: var(--muted);
-    }
-    .source-chip.endpoint { color: var(--green); }
-
-    #history-count { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
-    .load-more {
-      display: block; margin: 16px auto 0; background: var(--surface2);
-      border: 1px solid var(--border); color: var(--text); padding: 8px 24px;
-      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
-    }
-    .load-more:hover { background: var(--surface); }
-
-    /* ── Accuracy ── */
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px; margin-bottom: 24px;
-    }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 16px 18px; text-align: center;
-    }
-    .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent2); }
-    .stat-card .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
-
-    .accuracy-log { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .accuracy-log th {
-      text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border);
-      color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
-    }
-    .accuracy-log td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    .accuracy-log tr:hover td { background: var(--surface2); }
-    .correct-yes { color: var(--green); font-weight: 600; }
-    .correct-no  { color: var(--red); }
-    .changelog-row td { background: #1a1525; border-top: 2px solid var(--accent);
-                        color: var(--muted); font-size: 0.78rem; padding: 6px 12px; }
-    .changelog-row:hover td { background: #1a1525 !important; }
-    .changelog-badge { display: inline-block; background: var(--accent); color: #fff;
-                       font-size: 0.68rem; font-weight: 700; border-radius: 4px;
-                       padding: 1px 6px; margin-right: 8px; text-transform: uppercase;
-                       letter-spacing: 0.05em; }
-
-    /* ── Utilities ── */
-    .spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 2px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-msg { color: var(--muted); font-size: 0.9rem; display: flex;
-                   align-items: center; gap: 10px; padding: 24px 0; }
-    .error-msg { color: var(--red); padding: 16px; background: #200; border-radius: 8px;
-                 border: 1px solid #400; font-size: 0.85rem; }
-
-    .badge-correct { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-                     background: var(--green); margin-right: 4px; }
-    .badge-wrong   { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-                     background: var(--red); margin-right: 4px; }
-  </style>
+  /* history */
+  details.panel > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
+  details.panel > summary::after { content: '▾'; color: var(--muted); }
+  details[open].panel > summary::after { content: '▴'; }
+  details summary .label { margin: 0; }
+  .hist-body { margin-top: 14px; }
+  input[type=search] { width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text); padding: 10px 14px; border-radius: 8px; font: inherit; margin-bottom: 10px; }
+  input:focus { outline: 1px solid var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { text-align: left; color: var(--muted); font-weight: 500; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:hover td { background: var(--panel2); }
+  td.m { color: var(--muted); white-space: nowrap; }
+  .chip { font: 600 .8rem ui-monospace, Consolas, monospace; color: var(--cyan); }
+  .more { display: block; margin: 12px auto 0; background: var(--panel2); color: var(--text); }
+  .cnt { color: var(--muted); font-size: .8rem; margin-bottom: 8px; }
+  .note td { background: #1c2616; color: #bef264; font-size: .78rem; }
+  .msg { color: var(--muted); padding: 20px; text-align: center; }
+  @media (max-width: 560px) { .col-hide { display: none; } }
+</style>
 </head>
 <body>
+<div class="wrap">
+  <header><h1>OdKarla <span>/ prediktor slev</span></h1><span id="updated">Načítám…</span></header>
 
-<header>
-  <h1>OdKarla – Prediktor slev</h1>
-  <span id="last-updated">Načítám…</span>
-</header>
+  <div class="top">
+    <div class="panel today" id="today"><div class="msg">Načítám…</div></div>
+    <div class="panel" id="acc"></div>
+  </div>
 
-<nav>
-  <button class="active" onclick="showTab('today')">Dnes</button>
-  <button onclick="showTab('forecast')">Výhled</button>
-  <button onclick="showTab('history')">Historie</button>
-  <button onclick="showTab('accuracy')">Přesnost</button>
-</nav>
-
-<main>
-
-  <!-- TODAY -->
-  <section id="tab-today" class="active">
-    <div id="today-card">
-      <div class="loading-msg"><span class="spinner"></span> Načítám dnešní kód…</div>
+  <div class="panel">
+    <div class="head">
+      <div class="label">Výhled</div>
+      <div class="seg"><button data-n="7" class="on">7 dní</button><button data-n="14">14 dní</button></div>
     </div>
-    <h2>Predikce na příštích 7 dní</h2>
-    <div class="pred-grid" id="week-mini">
-      <div class="loading-msg"><span class="spinner"></span> Načítám predikce…</div>
-    </div>
-  </section>
+    <div class="strip" id="strip"></div>
+  </div>
 
-  <!-- FORECAST -->
-  <section id="tab-forecast">
-    <h2>Výhled</h2>
-    <div class="forecast-controls">
-      <button onclick="setForecastDays(7, this)">7 dní</button>
-      <button class="active" onclick="setForecastDays(14, this)">14 dní</button>
+  <details class="panel" style="margin-top:16px">
+    <summary><span class="label">Historie slev</span></summary>
+    <div class="hist-body">
+      <input type="search" id="q" placeholder="Hledat slevu, kód, datum (8.10.2026, 8.10., 2026-10-08)…">
+      <div class="cnt" id="hcount"></div>
+      <div id="hist"></div>
     </div>
-    <div id="forecast-table-wrap">
-      <div class="loading-msg"><span class="spinner"></span></div>
-    </div>
-  </section>
+  </details>
 
-  <!-- HISTORY -->
-  <section id="tab-history">
-    <h2>Historie</h2>
-    <div class="history-controls">
-      <input id="search-input" type="search" placeholder="Hledat slevu…" oninput="filterHistory()">
-      <span id="history-count"></span>
-    </div>
-    <div id="history-table-wrap">
-      <div class="loading-msg"><span class="spinner"></span></div>
-    </div>
-  </section>
-
-  <!-- ACCURACY -->
-  <section id="tab-accuracy">
-    <h2>Přesnost predikcí</h2>
-    <div class="stats-grid" id="stats-grid">
-      <div class="loading-msg"><span class="spinner"></span></div>
-    </div>
-    <div id="accuracy-log-wrap"></div>
-  </section>
-
-</main>
+  <details class="panel">
+    <summary><span class="label">Log přesnosti</span></summary>
+    <div class="hist-body" id="alog"></div>
+  </details>
+</div>
 
 <script>
-// ─── State ────────────────────────────────────────────────────────────────────
+// ─── Data layer ───────────────────────────────────────────────────────────────
 const DAYS_CZ = ['Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota','Neděle'];
 const HISTORY_JSON = 'https://raw.githubusercontent.com/tomini/OK_predictor/main/data/history.json';
 const ENDPOINT     = 'https://www.odkarla.cz/HeaderPromo/jsHeaderPromoSecret';
 
-let appData = null;        // from history.json
-let liveCode = null;       // from live endpoint
-let historyPage = 50;      // rows shown
-let forecastDays = 14;
-let filteredHistory = [];
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-async function init() {
+async function loadAll() {
   const [dataResult, liveResult] = await Promise.allSettled([
     fetch(HISTORY_JSON + '?t=' + Date.now()).then(r => r.json()),
     fetch(ENDPOINT).then(r => r.json())
   ]);
-
-  if (dataResult.status === 'fulfilled') {
-    appData = dataResult.value;
-    const ts = appData.last_updated
-      ? new Date(appData.last_updated).toLocaleString('cs-CZ')
-      : '?';
-    document.getElementById('last-updated').textContent = 'Aktualizováno: ' + ts;
-  } else {
-    document.getElementById('last-updated').textContent = 'Chyba načítání dat';
-  }
-
+  const appData = dataResult.status === 'fulfilled' ? dataResult.value : null;
+  let liveCode = null;
   if (liveResult.status === 'fulfilled') {
     const ld = liveResult.value?.data;
     if (ld?.isSecretCode) liveCode = ld;
   }
-
-  renderToday();
-  renderWeekMini();
-  renderForecast();
-  renderHistory();
-  renderAccuracy();
+  return { appData, liveCode };
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-function showTab(name) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
-}
-
-// ─── Discount type key (mirrors Python discount_type_key) ────────────────────
 function discountTypeKey(s) {
   s = s.toUpperCase();
   let m = s.match(/SLEVA \d+\s*%.+ŠTÍTKEM (.+)/);
@@ -356,265 +193,60 @@ function discountTypeKey(s) {
   return s;
 }
 
-// ─── Today ────────────────────────────────────────────────────────────────────
-function renderToday() {
-  const card = document.getElementById('today-card');
+// Today's discount/code (live endpoint first, then history) plus top prediction.
+function getToday(appData, liveCode) {
   const todayStr = isoToday();
-
-  let discount = null, code = null;
+  let discount = null, code = null, live = false;
 
   if (liveCode) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(liveCode.html, 'text/html');
+    const doc = new DOMParser().parseFromString(liveCode.html, 'text/html');
     const heading = doc.querySelector('.lp-special-action-text-heading');
-    if (heading) {
-      const strongs = heading.querySelectorAll('strong');
-      strongs.forEach(s => {
-        if (s.closest('.enter-code')) code = s.textContent.trim();
-        else discount = s.textContent.trim();
-      });
-    }
+    heading?.querySelectorAll('strong').forEach(s => {
+      if (s.closest('.enter-code')) code = s.textContent.trim();
+      else discount = s.textContent.trim();
+    });
+    live = !!discount;
   }
-
   if (!discount && appData) {
     const entry = appData.history.find(e => e.date === todayStr);
     if (entry) { discount = entry.discount; code = entry.code; }
   }
 
-  // Always resolve today's prediction
-  const todayPred = appData?.predictions?.find(p => p.date === todayStr);
-  const predTop = todayPred?.candidates?.[0] ?? null;
-
-  function predBlock(actualDiscount) {
-    if (!predTop) return '';
-    const varHints = predTop.variants?.length > 1
-      ? [...new Set(predTop.variants.map(v => shortVariant(v.discount)))].slice(0,4).join(' · ')
-      : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
-    const varSpan = varHints ? ` <span style="color:var(--muted);font-size:.75rem">(${escHtml(varHints)})</span>` : '';
-
-    let hitBadge = '';
-    if (actualDiscount) {
-      const actualKey = discountTypeKey(actualDiscount);
-      const hit = actualKey === predTop.type_key;
-      hitBadge = hit
-        ? `<span style="color:var(--green);font-weight:600;margin-left:8px">✓ Trefili jsme se</span>`
-        : `<span style="color:var(--red);font-weight:600;margin-left:8px">✗ Netrefili jsme se</span>`;
-    }
-
-    return `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:left">
-      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Predikce na dnes${hitBadge}</div>
-      <div style="font-size:.9rem">${escHtml(predTop.type_key)}${varSpan}</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:2px">Pravděpodobnost: <strong style="color:var(--accent2)">${(predTop.probability*100).toFixed(0)}%</strong></div>
-    </div>`;
-  }
-
-  if (!discount) {
-    if (predTop) {
-      const varHints = predTop.variants?.length > 1
-        ? [...new Set(predTop.variants.map(v => shortVariant(v.discount)))].slice(0,4).join(' · ')
-        : (predTop.top_variant ? shortVariant(predTop.top_variant) : '');
-      const variantHint = varHints ? `<div style="color:var(--muted);font-size:.78rem;margin-top:4px">${escHtml(varHints)}</div>` : '';
-      card.innerHTML = `
-        <div class="label">Dnešní kód ještě nebyl zveřejněn — predikce</div>
-        <div class="discount">${escHtml(predTop.type_key)}</div>
-        ${variantHint}
-        <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Pravděpodobnost: <strong style="color:var(--accent2)">${(predTop.probability*100).toFixed(0)}%</strong></div>`;
-    } else {
-      card.innerHTML = `<div class="label">Dnes</div><div class="no-code">Žádný tajný kód zatím nenalezen.</div>`;
-    }
-    return;
-  }
-
-  card.innerHTML = `
-    <div class="label">Dnešní tajný kód — ${formatDateCz(todayStr)}</div>
-    <div class="discount">${escHtml(discount)}</div>
-    ${code
-      ? `<div class="code-wrap">
-           <span class="code" id="live-code-text">${escHtml(code)}</span>
-           <button class="copy-btn" id="copy-btn" onclick="copyCode()">Kopírovat</button>
-         </div>`
-      : `<div class="no-code">Kód nenalezen v banneru.</div>`}
-    ${predBlock(discount)}`;
+  const pred = appData?.predictions?.find(p => p.date === todayStr)?.candidates?.[0] ?? null;
+  const hit = discount && pred ? discountTypeKey(discount) === pred.type_key : null;
+  return { date: todayStr, discount, code, live, pred, hit };
 }
 
-function copyCode() {
-  const txt = document.getElementById('live-code-text')?.textContent;
-  if (!txt) return;
-  navigator.clipboard.writeText(txt).then(() => {
-    const btn = document.getElementById('copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = 'Zkopírováno!';
-    setTimeout(() => { btn.textContent = orig; }, 1500);
-  });
+function accuracySummary(appData) {
+  const acc = appData?.accuracy || {};
+  const total = acc.total || 0, correct = acc.correct || 0;
+  const changelog = {};
+  (acc.changelog || []).forEach(c => { changelog[c.date] = c.note; });
+  return {
+    total, correct, wrong: total - correct,
+    pct: total ? Math.round(correct / total * 100) : 0,
+    log: (acc.log || []).slice().reverse(),   // newest first
+    lastChange: (acc.changelog || []).map(c => c.date).sort().pop() || null,
+    changelog
+  };
 }
 
-// ─── Week predictions ─────────────────────────────────────────────────────────
-function renderWeekMini() { renderWeekCards('week-mini', 7); }
+function candLabel(c) { return c.type_key || c.discount || ''; }
 
-function renderWeekCards(containerId, days) {
-  const wrap = document.getElementById(containerId);
-  if (!appData) { wrap.innerHTML = '<div class="error-msg">Data nedostupná.</div>'; return; }
-
-  const preds = appData.predictions.slice(0, days);
-  if (!preds.length) { wrap.innerHTML = '<div class="error-msg">Žádné predikce.</div>'; return; }
-
-  wrap.innerHTML = preds.map((p, i) => `
-    <div class="pred-card ${i === 0 ? 'top-pred' : ''}">
-      <div class="date-label">${formatDateCz(p.date)}</div>
-      <div class="dow">${DAYS_CZ[p.day_of_week]}</div>
-      ${p.candidates.length ? p.candidates.slice(0,3).map(c => {
-        const label = c.type_key || c.discount || '';
-        const varHint = c.variants && c.variants.length > 1
-          ? `<div style="color:var(--muted);font-size:.68rem;margin-top:2px">${[...new Set(c.variants.map(v=>shortVariant(v.discount)))].slice(0,4).join(' · ')}</div>`
-          : '';
-        return `<div class="candidate">
-          <div class="prob-bar-wrap">
-            <div class="candidate-name">${escHtml(label)}${varHint}</div>
-            <div class="prob-bar"><div class="prob-fill" style="width:${Math.round(c.probability*100)}%"></div></div>
-          </div>
-          <div class="prob-pct">${(c.probability*100).toFixed(0)}%</div>
-        </div>`;
-      }).join('') : '<div style="color:var(--muted);font-size:.8rem">Nedostatek dat</div>'}
-    </div>`).join('');
+// "10 % · 20 % · 30 %" style hint for candidates with several variants.
+function variantHint(c) {
+  if (c.variants?.length > 1)
+    return [...new Set(c.variants.map(v => shortVariant(v.discount)))].slice(0, 4).join(' · ');
+  return c.top_variant ? shortVariant(c.top_variant) : '';
 }
 
-// ─── Forecast ─────────────────────────────────────────────────────────────────
-function setForecastDays(n, btn) {
-  forecastDays = n;
-  document.querySelectorAll('.forecast-controls button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderForecast();
+function pct(p) { return Math.round(p * 100); }
+
+function dowOf(iso) {
+  const d = new Date(iso + 'T12:00:00').getDay();
+  return DAYS_CZ[d === 0 ? 6 : d - 1];
 }
 
-function renderForecast() {
-  const wrap = document.getElementById('forecast-table-wrap');
-  if (!appData) { wrap.innerHTML = '<div class="error-msg">Data nedostupná.</div>'; return; }
-
-  const preds = appData.predictions.slice(0, forecastDays);
-  if (!preds.length) { wrap.innerHTML = '<div class="error-msg">Žádné predikce.</div>'; return; }
-
-  const rows = preds.map(p => {
-    const chips = p.candidates.map((c, i) => {
-      const label = c.type_key || c.discount || '';
-      return `<span class="prob-chip ${i===0?'top':''}" title="${escHtml(c.top_variant||'')}">` +
-        `${(c.probability*100).toFixed(0)}% ${escHtml(label)}</span>`;
-    }).join('') || '<span style="color:var(--muted)">—</span>';
-    return `<tr>
-      <td>${formatDateCz(p.date)}</td>
-      <td>${DAYS_CZ[p.day_of_week]}</td>
-      <td>${chips}</td>
-    </tr>`;
-  }).join('');
-
-  wrap.innerHTML = `<table class="forecast-table">
-    <thead><tr><th>Datum</th><th>Den</th><th>Kandidáti</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
-
-// ─── History ──────────────────────────────────────────────────────────────────
-function renderHistory() {
-  if (!appData) {
-    document.getElementById('history-table-wrap').innerHTML = '<div class="error-msg">Data nedostupná.</div>';
-    return;
-  }
-  filteredHistory = appData.history;
-  renderHistoryTable();
-}
-
-function filterHistory() {
-  const q = document.getElementById('search-input').value.toLowerCase();
-  filteredHistory = q
-    ? appData.history.filter(e =>
-        e.discount.toLowerCase().includes(q) ||
-        (e.code||'').toLowerCase().includes(q) ||
-        e.date.includes(q))
-    : appData.history;
-  historyPage = 50;
-  renderHistoryTable();
-}
-
-function renderHistoryTable() {
-  const wrap = document.getElementById('history-table-wrap');
-  document.getElementById('history-count').textContent =
-    `${filteredHistory.length} záznamů`;
-
-  const slice = filteredHistory.slice(0, historyPage);
-  const rows = slice.map(e => `<tr>
-    <td>${formatDateCz(e.date)}</td>
-    <td>${DAYS_CZ[new Date(e.date + 'T12:00:00').getDay() === 0 ? 6 : new Date(e.date + 'T12:00:00').getDay() - 1]}</td>
-    <td>${escHtml(e.discount)}</td>
-    <td>${e.code ? `<span class="code-chip">${escHtml(e.code)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
-    <td><span class="source-chip ${e.source==='endpoint'?'endpoint':''}">${e.source||'csv'}</span></td>
-  </tr>`).join('');
-
-  const hasMore = filteredHistory.length > historyPage;
-  wrap.innerHTML = `
-    <table class="history-table">
-      <thead><tr><th>Datum</th><th>Den</th><th>Sleva</th><th>Kód</th><th>Zdroj</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    ${hasMore ? `<button class="load-more" onclick="loadMoreHistory()">Načíst další (${filteredHistory.length - historyPage} zbývá)</button>` : ''}`;
-}
-
-function loadMoreHistory() {
-  historyPage += 100;
-  renderHistoryTable();
-}
-
-// ─── Accuracy ─────────────────────────────────────────────────────────────────
-function renderAccuracy() {
-  if (!appData) return;
-  const acc = appData.accuracy || {};
-  const total   = acc.total || 0;
-  const correct = acc.correct || 0;
-  const pct = total ? Math.round(correct / total * 100) : 0;
-  const log = (acc.log || []).slice().reverse();
-  const changelog = acc.changelog || [];
-
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Ověřených predikcí</div></div>
-    <div class="stat-card"><div class="stat-value">${correct}</div><div class="stat-label">Správných</div></div>
-    <div class="stat-card"><div class="stat-value">${total - correct}</div><div class="stat-label">Chybných</div></div>
-    <div class="stat-card"><div class="stat-value">${pct}%</div><div class="stat-label">Přesnost</div></div>`;
-
-  if (!log.length) {
-    document.getElementById('accuracy-log-wrap').innerHTML =
-      '<p style="color:var(--muted);font-size:.85rem">Data se začnou plnit automaticky po prvním zachyceném kódu přes endpoint.</p>';
-    return;
-  }
-
-  // Build set of changelog dates for quick lookup (newest-first log, so changelog rows appear above the entry on that date)
-  const changelogByDate = {};
-  changelog.forEach(c => { changelogByDate[c.date] = c.note; });
-
-  const rows = log.flatMap(l => {
-    const clNote = changelogByDate[l.date];
-    const clRow = clNote ? [`<tr class="changelog-row">
-      <td colspan="4">
-        <span class="changelog-badge">Změna modelu</span>
-        ${escHtml(clNote)}
-      </td>
-    </tr>`] : [];
-    return [...clRow, `<tr>
-      <td>${formatDateCz(l.date)}</td>
-      <td>${escHtml(l.predicted_type || l.predicted || '')}</td>
-      <td>${escHtml(l.actual)}</td>
-      <td class="${l.correct ? 'correct-yes' : 'correct-no'}">
-        <span class="${l.correct ? 'badge-correct' : 'badge-wrong'}"></span>
-        ${l.correct ? 'Správně' : 'Špatně'}
-      </td>
-    </tr>`];
-  }).join('');
-
-  document.getElementById('accuracy-log-wrap').innerHTML = `
-    <table class="accuracy-log">
-      <thead><tr><th>Datum</th><th>Predikce</th><th>Skutečnost</th><th>Výsledek</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function isoToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -626,12 +258,18 @@ function formatDateCz(isoStr) {
   return `${d}.${m}.${y}`;
 }
 
+// 24.10. (no year) for compact layouts
+function formatDayMonth(isoStr) {
+  const [, m, d] = isoStr.split('-');
+  return `${+d}. ${+m}.`;
+}
+
 function shortVariant(discount) {
   const p = discount.match(/(\d+)\s*%/);
   if (p) return p[1] + ' %';
-  const k = discount.match(/SLEVA\s+(\d+)\s*KČ/i);   // discount amount
+  const k = discount.match(/SLEVA\s+(\d+)\s*KČ/i);
   if (k) {
-    const thr = discount.match(/NAD\s+(\d+)\s*KČ/i);   // min-purchase threshold
+    const thr = discount.match(/NAD\s+(\d+)\s*KČ/i);
     return k[1] + ' Kč' + (thr ? ` (nad ${thr[1]} Kč)` : '');
   }
   return discount;
@@ -642,8 +280,151 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
-init();
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Zkopírováno ✓';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+}
+
+// History filter: matches discount, code, weekday and the date in any common form
+// (2026-10-08, 8.10.2026, 08.10., 8. 10.) - spaces in the query are ignored.
+function filterHistoryList(appData, q) {
+  q = q.toLowerCase().replace(/\s+/g, '');
+  if (!q) return appData.history;
+  return appData.history.filter(e => {
+    const [y, m, d] = e.date.split('-');
+    const forms = [e.date, `${d}.${m}.${y}`, `${+d}.${+m}.${y}`, `${d}.${m}.`, `${+d}.${+m}.`, `${d}.${m}`, `${+d}.${+m}`];
+    // dates must match from the start so "8.9." does not hit 18.9. or 28.9.
+    return forms.some(v => v.startsWith(q)) ||
+      [e.discount, e.code || '', dowOf(e.date)].some(v => v.toLowerCase().replace(/\s+/g, '').includes(q));
+  });
+}
+</script>
+<script>
+let D = null, L = null, fcDays = 7, hPage = 50, hList = [];
+const $ = id => document.getElementById(id);
+
+// Gradients copied from odkarla.cz (.lp-additional-info-container.*), matched by the label keyword.
+// Types without a site gradient (NA VŠE SKLADEM, SLEVA KČ) get a neutral/brand fallback.
+const TYPE_GRADIENTS = [
+  [/FIRST MINUTE/,  '#03a9f4', '#64cfff'],
+  [/NOVINKA/,       '#9b00a9', '#db00ef'],
+  [/TRETINU/,       '#97bb1c', '#c3ef2b'],
+  [/POLOVIC/,       '#b74310', '#e59a29'],
+  [/MEGAVYPRODEJ/,  '#3159fc', '#2fb1ff'],
+  [/ZA 99/,         '#eebf1a', '#f5d04c'],
+  [/ZA 69/,         '#e88907', '#ffa52b'],
+  [/VSE SKLADEM/,   '#1f9d1f', '#33cc33'],
+  [/KC/,            '#6b6566', '#a39d9e'],
+];
+function typeColors(key) {
+  const k = (key || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+  const hit = TYPE_GRADIENTS.find(([re]) => re.test(k));
+  return hit ? [hit[1], hit[2]] : ['#6b6566', '#a39d9e'];
+}
+
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.seg button').forEach(e => e.classList.remove('on'));
+  b.classList.add('on'); fcDays = +b.dataset.n; renderStrip();
+});
+$('q').oninput = () => { hPage = 50; hList = filterHistoryList(D, $('q').value); renderHistory(); };
+
+function renderToday() {
+  const t = getToday(D, L), el = $('today');
+  if (!t.discount) {
+    el.innerHTML = t.pred
+      ? `<div class="label">Dnes · kód ještě není venku</div>
+         <div class="what">${escHtml(t.pred.type_key)}</div>
+         <div class="sub">${escHtml(variantHint(t.pred))}</div>
+         <div class="sub">Predikce · pravděpodobnost <b style="color:var(--accent)">${pct(t.pred.probability)} %</b></div>`
+      : `<div class="label">Dnes</div><div class="sub">Žádný tajný kód zatím nenalezen.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="label">Dnešní tajný kód · ${formatDateCz(t.date)}</div>
+    <div class="what">${escHtml(t.discount)}</div>
+    ${t.code ? `<div class="code"><b>${escHtml(t.code)}</b><button class="btn" id="cp">Kopírovat</button></div>` : `<div class="sub">Kód nenalezen v banneru.</div>`}
+    ${t.pred ? `<div class="sub">Predikce: ${escHtml(t.pred.type_key)} (${pct(t.pred.probability)} %)
+      ${t.hit ? '<span class="hit">✓ trefa</span>' : t.hit === false ? '<span class="miss">✗ vedle</span>' : ''}</div>` : ''}`;
+  if (t.code) $('cp').onclick = e => copyText(t.code, e.target);
+}
+
+let accScope = 'model';   // 'model' = since last model change, 'all'
+function renderAcc() {
+  const a = accuracySummary(D);
+  const since = accScope === 'model' && a.lastChange ? a.lastChange : null;
+  const log = since ? a.log.filter(l => l.date >= since) : a.log;
+  const total = log.length, correct = log.filter(l => l.correct).length;
+  const p = total ? Math.round(correct / total * 100) : 0;
+  const last = log.slice(0, 28).reverse();
+  $('acc').innerHTML = `
+    <div class="label">Přesnost modelu</div>
+    <div class="scope">
+      <button data-s="model" class="${accScope === 'model' ? 'on' : ''}">Od poslední změny modelu${a.lastChange ? ' (' + formatDateCz(a.lastChange) + ')' : ''}</button>
+      <button data-s="all" class="${accScope === 'all' ? 'on' : ''}">Celkově</button>
+    </div>
+    <div class="ring-row">
+      <div class="ring" style="--v:${p}"><span>${p} %</span></div>
+      <dl><dt>Ověřeno</dt><dd>${total}</dd><dt>Správně</dt><dd>${correct}</dd><dt>Špatně</dt><dd>${total - correct}</dd></dl>
+      <div class="sq">${last.length ? `<div class="dots">${last.map(l => `<i class="${l.correct ? '' : 'x'}" title="${formatDateCz(l.date)}: ${escHtml(l.actual)}"></i>`).join('')}</div>
+        <div class="dots-cap">Posledních ${last.length} predikcí (starší → novější)</div>` : '<div class="dots-cap">Zatím žádné ověřené predikce.</div>'}</div>
+    </div>`;
+  document.querySelectorAll('.scope button').forEach(b => b.onclick = () => { accScope = b.dataset.s; renderAcc(); });
+}
+
+function renderStrip() {
+  const today = isoToday();
+  // data can be a few hours old (hourly update) - drop days that already passed
+  const preds = (D?.predictions || []).filter(p => p.date >= today).slice(0, fcDays), outcome = getToday(D, L).hit;
+  $('strip').className = 'strip ' + (fcDays <= 7 ? 'list' : 'cols2');
+  $('strip').innerHTML = preds.length ? preds.map(p => {
+    const [top, ...rest] = p.candidates;
+    const dt = `<div class="dt"><b>${DAYS_CZ[p.day_of_week]}</b>${formatDayMonth(p.date)}</div>`;
+    const cls = `day row${p.candidates.length > 1 ? ' has-alts' : ''} ${p.date === today ? 'today ' + (outcome === true ? 'glow-hit' : outcome === false ? 'glow-miss' : '') : ''}`;
+    if (!top) return `<div class="${cls}">${dt}<div class="nm" style="color:var(--muted)">Nedostatek dat</div></div>`;
+    const vh = variantHint(top);
+    const alts = rest.slice(0, 2).map(c => `<div><b>${pct(c.probability)} %</b> ${escHtml(candLabel(c))}</div>`).join('');
+    const win = `<div>
+      <div class="nm">${escHtml(candLabel(top))}</div>
+      ${vh ? `<div class="vals">${escHtml(vh)}</div>` : ''}
+      <div class="meter"><div class="bar"><i style="width:${pct(top.probability)}%"></i></div><div class="pc">${pct(top.probability)} %</div></div>
+    </div>`;
+    return `<div class="${cls}" style="--c:${typeColors(top.type_key)[0]};--c2:${typeColors(top.type_key)[1]}">
+      ${dt}${win}${alts ? `<div class="alts">${alts}</div>` : ''}
+    </div>`;
+  }).join('') : '<div class="msg">Žádné predikce.</div>';
+}
+
+function renderHistory() {
+  $('hcount').textContent = `${hList.length} záznamů`;
+  const rows = hList.slice(0, hPage).map(e => `<tr>
+    <td class="m">${formatDateCz(e.date)}</td><td class="m col-hide">${dowOf(e.date)}</td>
+    <td>${escHtml(e.discount)}</td><td>${e.code ? `<span class="chip">${escHtml(e.code)}</span>` : ''}</td></tr>`).join('');
+  $('hist').innerHTML = rows
+    ? `<table><thead><tr><th>Datum</th><th class="col-hide">Den</th><th>Sleva</th><th>Kód</th></tr></thead><tbody>${rows}</tbody></table>
+       ${hList.length > hPage ? `<button class="btn more" id="more">Další (${hList.length - hPage})</button>` : ''}`
+    : '<div class="msg">Nic nenalezeno.</div>';
+  if ($('more')) $('more').onclick = () => { hPage += 100; renderHistory(); };
+}
+
+function renderLog() {
+  const a = accuracySummary(D);
+  $('alog').innerHTML = a.log.length ? `<table><thead><tr><th>Datum</th><th>Predikce</th><th>Skutečnost</th><th></th></tr></thead><tbody>${
+    a.log.map(l => `${a.changelog[l.date] ? `<tr class="note"><td colspan="4">Změna modelu: ${escHtml(a.changelog[l.date])}</td></tr>` : ''}
+      <tr><td class="m">${formatDateCz(l.date)}</td><td>${escHtml(l.predicted_type || l.predicted || '')}</td><td>${escHtml(l.actual)}</td>
+      <td style="color:var(--${l.correct ? 'green' : 'red'});font-weight:700">${l.correct ? '✓' : '✗'}</td></tr>`).join('')
+  }</tbody></table>` : '<div class="msg">Data se začnou plnit po prvním zachyceném kódu.</div>';
+}
+
+(async () => {
+  ({ appData: D, liveCode: L } = await loadAll());
+  $('updated').textContent = D?.last_updated ? 'Aktualizováno ' + new Date(D.last_updated).toLocaleString('cs-CZ') : 'Chyba načítání dat';
+  renderToday();
+  if (!D) { $('strip').innerHTML = '<div class="msg">Data nedostupná.</div>'; return; }
+  renderAcc(); renderStrip(); hList = D.history; renderHistory(); renderLog();
+})();
 </script>
 </body>
 </html>
