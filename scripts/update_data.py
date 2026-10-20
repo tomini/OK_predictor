@@ -22,9 +22,11 @@ PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 DAYS_AHEAD    = 14                 # only 7-day is reliable; 14 is best-effort
 DATE_FROM     = date(2025, 1, 1)   # older data still shown in history, ignored by model
-FIT_WINDOW    = 28                 # days used to score each candidate lag
-FIT_DECAY     = 0.9                # per-day weight decay when scoring a lag (newest day = 1.0)
-VOTE_POWER    = 4                  # each lag votes with weight fit**VOTE_POWER
+FIT_WINDOWS   = (8, 14, 28)        # a lag is scored on each window, the best score counts, so a
+                                   # new cycle is picked up within ~8 days of a rotation change
+FIT_PRIOR     = 2.0                # pseudo-observations (half hits) shrinking short-window scores
+VOTE_POWER    = 8                  # each lag votes with weight fit**VOTE_POWER
+SHOW_POWER    = 4                  # softer power for the displayed share (VOTE_POWER is overconfident)
 LAGS          = list(range(2, 29))  # candidate periods in days. Weekly-only lags {7,14,21,28}
                                     # missed the strict 6-day cycle that began 2026-09-07.
                                     # Walk-forward backtest (2025-03 .. 2026-10, horizons 1/2/3/7):
@@ -169,7 +171,7 @@ def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
 
     The schedule is a rotating cycle whose period changes every month or two, so each
     candidate lag P (2..28 days) is scored on how often "type P days ago" matched the type
-    on the day over the last FIT_WINDOW days, with newer days counting more (FIT_DECAY).
+    on the day over the last 8, 14 and 28 days (best shrunk score wins, see FIT_WINDOWS).
     The prediction for a day is the type with the highest fit**VOTE_POWER-weighted vote
     across all lags (ties go to the shorter lag). Days beyond the last observed one use
     earlier predictions as lag sources (rollout), so a lag shorter than the horizon still
@@ -190,22 +192,23 @@ def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
 
     tkeys = {d: discount_type_key(disc) for d, disc in by_date.items()}
 
-    # Fit of each lag as of today: decayed share of recent days whose type matched the
-    # type P days earlier. Needs >= 4 comparable days, else the lag does not vote.
+    # Fit of each lag as of today: for each window in FIT_WINDOWS the share of days whose type
+    # matched the type P days earlier, shrunk toward 50 % by FIT_PRIOR; the best window counts.
+    # Needs >= 4 comparable days in a window, else that window does not score.
     lag_fit = {}
     for P in LAGS:
-        num = den = 0.0
-        n = 0
-        for k in range(FIT_WINDOW):
-            d = today - timedelta(days=k)
-            src = d - timedelta(days=P)
-            if d in tkeys and src in tkeys:
-                w = FIT_DECAY ** k
-                den += w
-                n += 1
-                if tkeys[d] == tkeys[src]:
-                    num += w
-        lag_fit[P] = (num / den) if n >= 4 else 0.0
+        best = 0.0
+        for W in FIT_WINDOWS:
+            hits = n = 0
+            for k in range(W):
+                d = today - timedelta(days=k)
+                src = d - timedelta(days=P)
+                if d in tkeys and src in tkeys:
+                    n += 1
+                    hits += tkeys[d] == tkeys[src]
+            if n >= 4:
+                best = max(best, (hits + FIT_PRIOR / 2) / (n + FIT_PRIOR))
+        lag_fit[P] = best
 
     # Recent % variants per type key, for the sub-line under each candidate.
     variant_weight = defaultdict(lambda: defaultdict(float))
@@ -220,11 +223,13 @@ def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
         target = today + timedelta(days=i)
 
         votes = defaultdict(float)
+        shown = defaultdict(float)
         for P in LAGS:                       # ascending: shorter lag wins vote ties
             ty = series.get(target - timedelta(days=P))
             if ty is None:
                 continue
             votes[ty] += lag_fit[P] ** VOTE_POWER
+            shown[ty] += lag_fit[P] ** SHOW_POWER
 
         total = sum(votes.values())
         if not votes or total <= 0:
@@ -235,11 +240,12 @@ def compute_predictions(history_entries, days_ahead=DAYS_AHEAD, as_of=None):
         order = sorted(votes, key=lambda t: -votes[t])   # stable: insertion (short lag) first
         if target not in tkeys:
             series[target] = order[0]
-        prob = {t: votes[t] / total for t in order}
+        shown_total = sum(shown.values())
+        prob = {t: shown[t] / shown_total for t in order}
         prob[order[0]] = min(PROB_MAX, max(PROB_MIN, prob[order[0]]))
-        rest_total = sum(votes[t] for t in order[1:])
+        rest_total = sum(shown[t] for t in order[1:])
         for t in order[1:]:
-            prob[t] = (1.0 - prob[order[0]]) * (votes[t] / rest_total) if rest_total else 0.0
+            prob[t] = (1.0 - prob[order[0]]) * (shown[t] / rest_total) if rest_total else 0.0
 
         candidates = []
         for tkey in order:

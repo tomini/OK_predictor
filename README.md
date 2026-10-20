@@ -2,7 +2,7 @@
 
 Statická webová aplikace (GitHub Pages) předpovídající tajné slevové akce e-shopu [OdKarla.cz](https://www.odkarla.cz) na základě historických dat. Data se automaticky doplňují přes GitHub Actions.
 
-[![Otevřít aplikaci](https://img.shields.io/badge/Otevřít_aplikaci-OdKarla_Prediktor-7c6af7?style=for-the-badge)](https://tomini.github.io/OK_predictor/)
+[![Otevřít aplikaci](https://img.shields.io/badge/Otevřít_aplikaci-OdKarla_Prediktor-33cc33?style=for-the-badge)](https://tomini.github.io/OK_predictor/)
 
 ---
 
@@ -91,14 +91,20 @@ Skript predikuje dnešní den a 14 dní dopředu. Za 7 dní je model použiteln�
 
 Model je vážené hlasování lagů:
 
-- Pro každé zpoždění P od 2 do 28 dní se za posledních 28 dní spočítá, jak často typ slevy před P dny odpovídal typu v daný den. Dny z poslední doby mají větší váhu (každý den zpět se váha násobí 0,9).
-- Každé zpoždění hlasuje pro typ, který měl cílový den před P dny. Váha hlasu je skóre zpoždění na čtvrtou. Vyhrává typ s nejvíc hlasy.
+- Pro každé zpoždění P od 2 do 28 dní se spočítá, jak často typ slevy před P dny odpovídal typu v daný den. Skóre se počítá zvlášť za posledních 8, 14 a 28 dní. Každé se stáhne k 50 % (jako by přibyla dvě pozorování, jedno trefa a jedno minutí) a platí nejvyšší ze tří. Okno 8 dní zachytí nový cyklus do týdne.
+- Každé zpoždění hlasuje pro typ, který měl cílový den před P dny. Váha hlasu je skóre na osmou. Vyhrává typ s nejvíc hlasy.
 - U dnů za posledním známým dnem se jako zdroj použije dřívější predikce. Hlasují tak i zpoždění kratší než vzdálenost do cílového dne.
-- Zobrazené procento je podíl hlasů daného typu. V backtestu vycházelo průměrně 67 %, skutečná trefa byla 68 až 76 % podle horizontu.
+- Zobrazené procento je podíl hlasů daného typu, počítaný s váhou skóre na čtvrtou. S osmou by vycházelo 80 % při trefě 70 %. S čtvrtou je to v backtestu průměrně 67 % při trefě 70,5 %.
 
 E-shop mění periodu rotace každý měsíc nebo dva (14denní, 28denní a od 7. 9. 2026 6denní cyklus), takže model skóre přepočítává při každém běhu.
 
-Walk-forward backtest od března 2025 (horizonty 1, 2, 3 a 7 dní) dal 73,6 %. Předchozí model, který bral jedno nejlepší zpoždění z posledních 21 dní, měl 70,1 %. Za poslední 3 měsíce je to 75,3 % proti 70,2 %.
+Walk-forward backtest od dubna 2025 (horizonty 1, 2, 3, 7 a 14 dní) dal 70,5 %. Předchozí model, který skóre počítal z jednoho 28denního okna s útlumem 0,9 a váhou na čtvrtou, dal 70,7 %. Přesnost se nezměnila. Na holdoutu (parametry laděné jen na datech do 31. 8. 2026, test na 1. 9. až 19. 10. 2026) vyšlo 68,6 % proti 67,3 %. Rozdíl odpovídá šumu.
+
+Změna míří na jinou chybu. 20. 10. 2026 předchozí model předpověděl na 14 dní z 15 `SLEVA KČ`. KČ je nejčastější typ, takže při slabém skóre všech zpoždění vyhrává hlasování, a protože se předpověď vrací do hlasování dalších dnů, zbytek výhledu se k ní přitáhne. Za celou historii je v předchozím modelu 44 ze 567 dnů, kdy 10 a víc dní z 15 je stejný typ. V novém jich je 14 až 21. Kolaps tedy nezmizel, je jen vzácnější.
+
+Po změně rotace jsou oba modely 1 až 2 týdny špatné. Model, který změnu předvídá, nemáme.
+
+Pravidlo pro další změny: model se mění jen tehdy, když zlepšení vyjde na datech, podle kterých se neladilo. Jedna špatná série dní to není.
 
 Posun rotace o jeden den, jako 6. 10. 2026, model nepředpoví. Po něm potřebuje několik dní, než skóre naběhne na novou fázi.
 
@@ -117,15 +123,15 @@ Různé procentní výše stejné akce (např. `OBŘÍ SLEVA 62 %...` a `OBŘÍ 
 | `SLEVA N KČ` | `SLEVA KČ` |
 | ostatní | původní text |
 
-Predikční karta zobrazuje klíč (`SLEVA % | MEGAVÝPRODEJ`) s podřádkem procentních variant (`62 % · 73 % · 85 %`). Jsou to procenta, se kterými se daný typ vyskytl v posledních 120 dnech, od nejčastějšího. Predikce říká **jaký typ akce** s jakou pravděpodobností nastane, nikoliv přesné procento.
+Výhled zobrazuje u každého dne vítězný klíč (`SLEVA % | MEGAVÝPRODEJ`) s pruhem pravděpodobnosti, řádkem hodnot (`62 % · 73 % · 85 %`). Jsou to procenta, se kterými se daný typ vyskytl v posledních 120 dnech, od nejčastějšího. Predikce říká **jaký typ akce** s jakou pravděpodobností nastane, nikoliv přesné procento.
 
 ---
 
 ### Sledování přesnosti
 
-Každý nově přidaný záznam (automaticky i ručně) se porovná s predikcí pro dané datum. Srovnává se na úrovni **typu klíče** (ne přesného textu). Výsledky jsou viditelné v záložce **Přesnost**.
+Každý nově přidaný záznam (automaticky i ručně) se porovná s predikcí pro dané datum. Srovnává se na úrovni **typu klíče** (ne přesného textu). Výsledky jsou vidět v panelu **Přesnost modelu**: ve výchozím stavu se počítají od poslední změny modelu (záznam v `accuracy.changelog`), přepínačem lze zobrazit celkovou přesnost. Čtverečky ukazují posledních 28 výsledků, pod nimi je rozbalovací log.
 
-Na záložce **Dnes** se přímo pod aktuálním kódem zobrazuje, zda predikce pro dnešek vyšla.
+V panelu **Dnešní tajný kód** se přímo pod aktuálním kódem zobrazuje, zda predikce pro dnešek vyšla. Stejný výsledek určuje barvu záře kolem dnešního dne ve výhledu (zelená trefa, červená vedle, šedobílá zatím neznámo).
 
 ---
 
