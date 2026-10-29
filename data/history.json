@@ -1,6 +1,12 @@
 {
-  "last_updated": "2026-10-29T19:59:45.954587Z",
+  "last_updated": "2026-10-29T23:51:54.367457Z",
   "history": [
+    {
+      "date": "2026-10-30",
+      "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+      "code": "30RIJ300E",
+      "source": "endpoint"
+    },
     {
       "date": "2026-10-29",
       "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
@@ -3965,82 +3971,20 @@
   ],
   "predictions": [
     {
-      "date": "2026-10-29",
-      "day_of_week": 3,
-      "candidates": [
-        {
-          "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.4826,
-          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
-          "variants": [
-            {
-              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
-              "weight": 18.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.2328,
-          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
-          "variants": [
-            {
-              "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.1836,
-          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
-          "variants": [
-            {
-              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
-              "weight": 16.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA KČ",
-          "probability": 0.1011,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-          "variants": [
-            {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
-            },
-            {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
-              "weight": 16.0
-            },
-            {
-              "discount": "SLEVA 400 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 1000 KČ",
-              "weight": 8.0
-            },
-            {
-              "discount": "SLEVA 500 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 1500 KČ",
-              "weight": 7.0
-            }
-          ]
-        }
-      ]
-    },
-    {
       "date": "2026-10-30",
       "day_of_week": 4,
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.8928,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.9304,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4055,18 +3999,18 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0696,
+          "probability": 0.0432,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0209,
+          "probability": 0.0147,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4077,7 +4021,7 @@
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0167,
+          "probability": 0.0118,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4094,7 +4038,7 @@
       "candidates": [
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.5846,
+          "probability": 0.5619,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4105,15 +4049,15 @@
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.2351,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.2128,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4127,24 +4071,24 @@
           ]
         },
         {
-          "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0974,
-          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+          "type_key": "SLEVA % NA VŠE SKLADEM",
+          "probability": 0.13,
+          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
-              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+              "discount": "SLEVA 30 % NA VŠE SKLADEM",
               "weight": 18.0
             }
           ]
         },
         {
-          "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.083,
-          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
+          "type_key": "SLEVA % | FIRST MINUTE",
+          "probability": 0.0952,
+          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
-              "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+              "weight": 18.0
             }
           ]
         }
@@ -4156,15 +4100,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.7636,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.7771,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4179,18 +4123,18 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.1231,
+          "probability": 0.1148,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.091,
+          "probability": 0.0948,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4201,7 +4145,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0222,
+          "probability": 0.0132,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4218,15 +4162,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.7987,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.7629,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4241,7 +4185,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.1308,
+          "probability": 0.1711,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4251,23 +4195,23 @@
           ]
         },
         {
-          "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0413,
-          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
-          "variants": [
-            {
-              "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
-            }
-          ]
-        },
-        {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0292,
+          "probability": 0.0379,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
               "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+              "weight": 18.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % NA VŠE SKLADEM",
+          "probability": 0.0282,
+          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
+          "variants": [
+            {
+              "discount": "SLEVA 30 % NA VŠE SKLADEM",
               "weight": 18.0
             }
           ]
@@ -4280,18 +4224,18 @@
       "candidates": [
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.4826,
+          "probability": 0.5263,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.2623,
+          "probability": 0.2214,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4302,15 +4246,15 @@
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.1912,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.2106,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4325,7 +4269,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.064,
+          "probability": 0.0417,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4342,15 +4286,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.9234,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.9303,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4365,7 +4309,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0496,
+          "probability": 0.0542,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4376,7 +4320,7 @@
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0222,
+          "probability": 0.0125,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4387,12 +4331,12 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0048,
+          "probability": 0.003,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         }
@@ -4404,7 +4348,7 @@
       "candidates": [
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.4556,
+          "probability": 0.4814,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4415,18 +4359,18 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.2537,
+          "probability": 0.2392,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.1501,
+          "probability": 0.168,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4437,15 +4381,15 @@
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.1406,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.1114,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4466,15 +4410,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.909,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.9428,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4489,7 +4433,7 @@
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0424,
+          "probability": 0.0251,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4499,24 +4443,24 @@
           ]
         },
         {
+          "type_key": "SLEVA % NA VŠE SKLADEM",
+          "probability": 0.0202,
+          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
+          "variants": [
+            {
+              "discount": "SLEVA 30 % NA VŠE SKLADEM",
+              "weight": 18.0
+            }
+          ]
+        },
+        {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0209,
+          "probability": 0.0119,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
               "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
               "weight": 16.0
-            }
-          ]
-        },
-        {
-          "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0277,
-          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
-          "variants": [
-            {
-              "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
             }
           ]
         }
@@ -4528,7 +4472,7 @@
       "candidates": [
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.5947,
+          "probability": 0.5798,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4539,15 +4483,15 @@
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.2411,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.2252,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4562,7 +4506,7 @@
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.1183,
+          "probability": 0.1355,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4573,12 +4517,12 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0459,
+          "probability": 0.0595,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         }
@@ -4590,15 +4534,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.7798,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.7867,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4613,18 +4557,18 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.1836,
+          "probability": 0.1785,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0306,
+          "probability": 0.0312,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4635,7 +4579,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0061,
+          "probability": 0.0036,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4652,15 +4596,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.8149,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.7931,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4675,7 +4619,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.1146,
+          "probability": 0.1408,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4686,7 +4630,7 @@
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0496,
+          "probability": 0.0514,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4697,12 +4641,12 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0209,
+          "probability": 0.0147,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         }
@@ -4714,18 +4658,18 @@
       "candidates": [
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.5846,
+          "probability": 0.5619,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.1602,
+          "probability": 0.1858,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4736,15 +4680,15 @@
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.1912,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.2106,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4759,7 +4703,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.064,
+          "probability": 0.0417,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4776,15 +4720,15 @@
       "candidates": [
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.9234,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.9303,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4799,7 +4743,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.0496,
+          "probability": 0.0542,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4810,18 +4754,18 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.0222,
+          "probability": 0.0132,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.0048,
+          "probability": 0.0023,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4838,7 +4782,7 @@
       "candidates": [
         {
           "type_key": "SLEVA % | FIRST MINUTE",
-          "probability": 0.5786,
+          "probability": 0.5495,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
           "variants": [
             {
@@ -4849,7 +4793,7 @@
         },
         {
           "type_key": "SLEVA % | NOVINKA",
-          "probability": 0.1501,
+          "probability": 0.168,
           "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
           "variants": [
             {
@@ -4860,26 +4804,26 @@
         },
         {
           "type_key": "SLEVA % NA VŠE SKLADEM",
-          "probability": 0.1308,
+          "probability": 0.1711,
           "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
           "variants": [
             {
               "discount": "SLEVA 30 % NA VŠE SKLADEM",
-              "weight": 19.0
+              "weight": 18.0
             }
           ]
         },
         {
           "type_key": "SLEVA KČ",
-          "probability": 0.1406,
-          "top_variant": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+          "probability": 0.1114,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
           "variants": [
             {
-              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
-              "weight": 16.0
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
             },
             {
-              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
               "weight": 16.0
             },
             {
@@ -4893,11 +4837,73 @@
           ]
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "day_of_week": 4,
+      "candidates": [
+        {
+          "type_key": "SLEVA KČ",
+          "probability": 0.9428,
+          "top_variant": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+          "variants": [
+            {
+              "discount": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
+              "weight": 17.0
+            },
+            {
+              "discount": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+              "weight": 16.0
+            },
+            {
+              "discount": "SLEVA 400 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 1000 KČ",
+              "weight": 8.0
+            },
+            {
+              "discount": "SLEVA 500 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 1500 KČ",
+              "weight": 7.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % NA VŠE SKLADEM",
+          "probability": 0.0417,
+          "top_variant": "SLEVA 30 % NA VŠE SKLADEM",
+          "variants": [
+            {
+              "discount": "SLEVA 30 % NA VŠE SKLADEM",
+              "weight": 18.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % | NOVINKA",
+          "probability": 0.0119,
+          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
+          "variants": [
+            {
+              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM NOVINKA",
+              "weight": 16.0
+            }
+          ]
+        },
+        {
+          "type_key": "SLEVA % | FIRST MINUTE",
+          "probability": 0.0036,
+          "top_variant": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+          "variants": [
+            {
+              "discount": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+              "weight": 18.0
+            }
+          ]
+        }
+      ]
     }
   ],
   "accuracy": {
-    "total": 144,
-    "correct": 83,
+    "total": 145,
+    "correct": 84,
     "log": [
       {
         "date": "2026-06-08",
@@ -5905,6 +5911,13 @@
         "predicted_type": "SLEVA % | FIRST MINUTE",
         "predicted": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
         "actual": "SLEVA 35 % NA PRODUKTY SE ŠTÍTKEM FIRST MINUTE",
+        "correct": true
+      },
+      {
+        "date": "2026-10-30",
+        "predicted_type": "SLEVA KČ",
+        "predicted": "SLEVA 200 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 500 KČ",
+        "actual": "SLEVA 300 KČ NA VŠE SKLADEM PŘI NÁKUPU NAD 700 KČ",
         "correct": true
       }
     ],
